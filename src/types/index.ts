@@ -17,6 +17,12 @@ export interface ScoreResult {
   longest: WordResult;
 }
 
+export interface Definition {
+  word: string;
+  partOfSpeech: string;
+  definition: string;
+}
+
 export interface GamePlugin {
   name: string;
   cardTable: CardTable;

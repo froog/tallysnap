@@ -1,4 +1,6 @@
-import type { GamePlugin } from '../types';
+import { useEffect, useState } from 'react';
+import type { GamePlugin, Definition } from '../types';
+import { lookupWord } from '../services/dictionaryApi';
 import { CardChip } from './CardChip';
 import styles from './WordRow.module.css';
 
@@ -14,6 +16,13 @@ export function WordRow({ cards, plugin, isValid, onRemoveCard, onEditWord }: Wo
   const points = plugin.wordPoints(cards);
   const word = cards.map((c) => c.toUpperCase()).join("");
   const letterCount = plugin.wordLetterCount(cards);
+  const [definition, setDefinition] = useState<Definition | null>(null);
+
+  useEffect(() => {
+    if (isValid === true) {
+      lookupWord(word).then(setDefinition);
+    }
+  }, [word, isValid]);
 
   const rowClass = isValid === false 
     ? styles.invalid 
@@ -49,6 +58,11 @@ export function WordRow({ cards, plugin, isValid, onRemoveCard, onEditWord }: Wo
           </button>
         )}
       </div>
+      {definition && (
+        <div className={styles.definition}>
+          {definition.word} ({definition.partOfSpeech}) {definition.definition}
+        </div>
+      )}
     </div>
   );
 }
