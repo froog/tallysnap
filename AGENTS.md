@@ -172,6 +172,16 @@ git commit -m "descriptive message"
 
 ## TODO List
 
+### Testing & Test Data
+- [ ] Add more test images with valid and invalid words
+  - Valid word scenarios: CAT+DOG, THE+QUICK, long words like QUIZZES
+  - Invalid word scenarios: XYZ+ABC, mixed valid/invalid
+  - Edge cases: Short words, max cards, double-letter heavy hands
+- [ ] Fix vision API double-letter recognition (TH detected as T,H)
+  - Improve prompt to emphasize double-letter cards more strongly
+  - Add examples of TH, QU, IN, ER, CL detection
+  - Consider post-processing to merge T+H into TH when adjacent
+
 ### Definition Feature Improvements
 - [ ] Cache definitions to avoid repeated API calls
 - [ ] Add loading shimmer/skeleton while definition loads
