@@ -10,11 +10,6 @@
  */
 
 import { spawn } from 'child_process';
-import { fileURLToPath } from 'url';
-import { dirname, join } from 'path';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
 
 // Parse command line arguments
 const args = process.argv.slice(2);
@@ -36,17 +31,9 @@ if (!process.env.VITE_VISION_API_KEY) {
 // Set environment variables
 process.env.VITE_TEST_BUTTON = testButton ? 'true' : 'false';
 
-// Default test image path if not set (must be in public/ dir for Vite to serve)
-if (!process.env.VITE_TEST_IMAGE_PATH) {
-  process.env.VITE_TEST_IMAGE_PATH = '/aged-eh-that.jpeg';
-}
-
 console.log(`Starting CardCount...`);
 console.log(`Test button: ${testButton ? 'ENABLED' : 'disabled'}`);
 console.log(`Proxy: ENABLED (to avoid CORS)`);
-if (testButton) {
-  console.log(`Test image: ${process.env.VITE_TEST_IMAGE_PATH}`);
-}
 
 // Run proxy server and vite dev server concurrently
 const concurrently = spawn('npx', ['concurrently', '-n', 'PROXY,VITE', '-c', 'blue,green', 

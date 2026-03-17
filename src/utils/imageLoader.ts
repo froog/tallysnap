@@ -1,24 +1,4 @@
 export async function loadTestImage(imagePath: string): Promise<string> {
-  // For Node.js environment
-  if (typeof window === 'undefined') {
-    const fs = await import('fs');
-    const path = await import('path');
-    const { fileURLToPath } = await import('url');
-    
-    const __filename = fileURLToPath(import.meta.url);
-    const __dirname = path.dirname(__filename);
-    const fullPath = imagePath.startsWith('/') 
-      ? path.join(__dirname, '../../public', imagePath)
-      : imagePath;
-      
-    const imageBuffer = fs.readFileSync(fullPath);
-    const ext = path.extname(fullPath).toLowerCase();
-    const mimeType = ext === '.png' ? 'image/png' : 'image/jpeg';
-    const base64 = imageBuffer.toString('base64');
-    return `data:${mimeType};base64,${base64}`;
-  }
-  
-  // For browser environment
   const cacheBuster = `?_=${Date.now()}`;
   const response = await fetch(imagePath + cacheBuster);
   if (!response.ok) {

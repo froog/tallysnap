@@ -19,16 +19,15 @@ VITE_VISION_MODEL=claude-sonnet-4-20250514  # Optional: vision model
 
 # Environment Variables (Client-side)
 VITE_TEST_BUTTON=true              # Set by --test-button flag
-VITE_TEST_IMAGE_PATH=tests/image.jpeg  # Optional: default test image
 ```
 
 ## Code Style Guidelines
 
 ### Project Structure
-- Single-file React app: `cardcount.jsx` (~850 lines)
+- TypeScript React app in `src/` directory
 - Helper scripts: `scripts/start.js`
-- Test images: `tests/`
-- No CSS files - use inline styles with `palette` object
+- Test images: `public/test-images/`
+- CSS Modules with CSS variables for theming
 
 ### JavaScript/React Conventions
 - **ES Modules only** (`"type": "module"` in package.json)
@@ -98,6 +97,13 @@ const palette = {
 - Test button available with: `npm start -- --test-button`
 - Loads image from `TEST_IMAGE_PATH` env var
 - Default test image: `tests/aged-eh-that.jpeg`
+
+## Environment Variables (Server-side only - NEVER expose to client)
+VITE_VISION_API_KEY=xxx            # Anthropic API key (used by proxy, never sent to browser)
+VITE_VISION_MODEL=claude-sonnet-4-20250514  # Optional: vision model
+
+## Environment Variables (Client-side)
+VITE_TEST_BUTTON=true              # Set by --test-button flag
 
 ### Component Patterns
 ```javascript

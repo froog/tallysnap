@@ -9,6 +9,13 @@ import styles from './App.module.css';
 
 type Screen = 'home' | 'processing' | 'review' | 'summary';
 
+const TEST_IMAGES = [
+  { label: "AGED, EH, THAT", path: "/test-images/aged-eh-that.jpeg" },
+  { label: "AT, THE, EDH", path: "/test-images/at-the-edh.jpeg" },
+  { label: "QUEER, CLOY, A, T", path: "/test-images/queer-cloy-a-t.jpeg" },
+  { label: "THAT, CLOY, ZRE", path: "/test-images/that-cloy-zre.jpeg" },
+];
+
 export default function App() {
   const [screen, setScreen] = useState<Screen>('home');
   const [plugin] = useState<GamePlugin>(QuiddlerPlugin);
@@ -20,6 +27,7 @@ export default function App() {
   const [autoScore, setAutoScore] = useState(false);
   const [editingIdx, setEditingIdx] = useState<number | null>(null);
   const [scored, setScored] = useState<ScoreResult & { words: (WordResult & { valid?: boolean })[] } | null>(null);
+  const [selectedTestImage, setSelectedTestImage] = useState(TEST_IMAGES[0].path);
   const fileRef = useRef<HTMLInputElement>(null);
 
   // Load dictionary
@@ -117,18 +125,12 @@ export default function App() {
   };
 
   const handleTestImage = async () => {
-    const imagePath = import.meta.env.VITE_TEST_IMAGE_PATH;
-    if (!imagePath) {
-      setError("No test image path provided. Set VITE_TEST_IMAGE_PATH env var.");
-      return;
-    }
-
     setProcessing(true);
     setError(null);
     setScreen('processing');
 
     try {
-      const base64 = await loadTestImage(imagePath);
+      const base64 = await loadTestImage(selectedTestImage);
       await processImage(base64);
     } catch (err) {
       setError((err as Error).message || "Failed to load test image");
@@ -183,13 +185,23 @@ export default function App() {
             </ActionButton>
 
             {showTestButton && (
-              <ActionButton 
-                variant="secondary" 
-                onClick={handleTestImage}
-                className={styles.testButton}
-              >
-                🧪 Test Image
-              </ActionButton>
+              <div className={styles.testSection}>
+                <select
+                  value={selectedTestImage}
+                  onChange={(e) => setSelectedTestImage(e.target.value)}
+                  className={styles.testSelect}
+                >
+                  {TEST_IMAGES.map((img) => (
+                    <option key={img.path} value={img.path}>{img.label}</option>
+                  ))}
+                </select>
+                <ActionButton 
+                  variant="secondary" 
+                  onClick={handleTestImage}
+                >
+                  🧪 Test Image
+                </ActionButton>
+              </div>
             )}
           </div>
 
