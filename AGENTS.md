@@ -13,12 +13,13 @@ npm run dev                        # Start Vite dev server directly
 npm run build                      # Build for production
 npm run preview                    # Preview production build
 
-# Environment Variables Required
-VITE_VISION_API_KEY=xxx            # Anthropic API key for vision
+# Environment Variables (Server-side only - NEVER expose to client)
+VITE_VISION_API_KEY=xxx            # Anthropic API key (used by proxy, never sent to browser)
 VITE_VISION_MODEL=claude-sonnet-4-20250514  # Optional: vision model
+
+# Environment Variables (Client-side)
 VITE_TEST_BUTTON=true              # Set by --test-button flag
 VITE_TEST_IMAGE_PATH=tests/image.jpeg  # Optional: default test image
-VITE_USE_PROXY=true                # Use local proxy to avoid CORS (auto-set)
 ```
 
 ## Code Style Guidelines

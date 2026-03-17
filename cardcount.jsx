@@ -122,25 +122,17 @@ async function loadTestImage(imagePath) {
 // VISION API
 // ============================================================
 async function analyzeCards(base64Image, plugin) {
-  const apiKey = import.meta.env.VITE_VISION_API_KEY;
-  if (!apiKey) {
-    throw new Error("VITE_VISION_API_KEY environment variable is required");
-  }
-
   const mediaType = base64Image.startsWith("data:image/png") ? "image/png" : "image/jpeg";
   const cleanBase64 = base64Image.replace(/^data:image\/\w+;base64,/, "");
   const model = import.meta.env.VITE_VISION_MODEL || "claude-sonnet-4-20250514";
   
-  // Use proxy in development to avoid CORS
-  const apiUrl = import.meta.env.VITE_USE_PROXY === "true" 
-    ? "http://localhost:3001/api/anthropic/v1/messages"
-    : "https://api.anthropic.com/v1/messages";
+  // API key is handled by the proxy server, not sent to client
+  const apiUrl = "http://localhost:3001/api/anthropic/v1/messages";
 
   const response = await fetch(apiUrl, {
     method: "POST",
     headers: { 
       "Content-Type": "application/json",
-      "x-api-key": apiKey,
     },
     body: JSON.stringify({
       model: model,
