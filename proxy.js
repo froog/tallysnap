@@ -20,7 +20,14 @@ app.post('/api/anthropic/v1/messages', async (req, res) => {
   }
 
   try {
-    console.log('Proxying request to Anthropic API...');
+    // Log the size of the image being sent
+    const message = req.body.messages?.[0];
+    const imageContent = message?.content?.find(c => c.type === 'image');
+    if (imageContent?.source?.data) {
+      const dataLength = imageContent.source.data.length;
+      const sizeMB = (dataLength * 3 / 4 / 1024 / 1024).toFixed(2);
+      console.log(`Proxying image to Anthropic: ${sizeMB}MB (${dataLength} chars)`);
+    }
     
     const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',

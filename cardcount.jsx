@@ -230,6 +230,9 @@ async function analyzeCards(base64Image, plugin) {
   
   const mediaType = compressedImage.startsWith("data:image/png") ? "image/png" : "image/jpeg";
   const cleanBase64 = compressedImage.replace(/^data:image\/\w+;base64,/, "");
+  
+  console.log('cleanBase64 size:', Math.ceil((cleanBase64.length * 3) / 4 / 1024 / 1024), 'MB');
+  
   const model = import.meta.env.VITE_VISION_MODEL || "claude-sonnet-4-20250514";
   
   // API key is handled by the proxy server, not sent to client
