@@ -441,7 +441,7 @@ function EditWordModal({ cards: initialCards, plugin, onSave, onCancel, onDelete
 // ============================================================
 // MAIN APP
 // ============================================================
-export default function CardCount({ testImagePath }) {
+export default function CardCount() {
   const [screen, setScreen] = useState("home");
   const [plugin] = useState(QuiddlerPlugin);
   const [dictionary, setDictionary] = useState(null);
@@ -520,9 +520,9 @@ export default function CardCount({ testImagePath }) {
   };
 
   const handleTestImage = async () => {
-    const imagePath = testImagePath || process.env.TEST_IMAGE_PATH;
+    const imagePath = process.env.TEST_IMAGE_PATH;
     if (!imagePath) {
-      setError("No test image path provided. Set TEST_IMAGE_PATH env var or pass testImagePath prop.");
+      setError("No test image path provided. Set TEST_IMAGE_PATH env var.");
       return;
     }
 
@@ -540,6 +540,8 @@ export default function CardCount({ testImagePath }) {
       setProcessing(false);
     }
   };
+
+  const showTestButton = process.env.TEST_BUTTON === "true";
 
   const doScore = () => {
     const validGroups = wordGroups.filter((g) => g.length >= 2);
@@ -619,7 +621,7 @@ export default function CardCount({ testImagePath }) {
               📷 Scan Hand
             </ActionButton>
 
-            {(testImagePath || process.env.TEST_IMAGE_PATH) && (
+            {showTestButton && (
               <ActionButton 
                 variant="secondary" 
                 onClick={handleTestImage}
