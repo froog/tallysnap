@@ -130,8 +130,13 @@ async function analyzeCards(base64Image, plugin) {
   const mediaType = base64Image.startsWith("data:image/png") ? "image/png" : "image/jpeg";
   const cleanBase64 = base64Image.replace(/^data:image\/\w+;base64,/, "");
   const model = import.meta.env.VITE_VISION_MODEL || "claude-sonnet-4-20250514";
+  
+  // Use proxy in development to avoid CORS
+  const apiUrl = import.meta.env.VITE_USE_PROXY === "true" 
+    ? "http://localhost:3001/api/anthropic/v1/messages"
+    : "https://api.anthropic.com/v1/messages";
 
-  const response = await fetch("https://api.anthropic.com/v1/messages", {
+  const response = await fetch(apiUrl, {
     method: "POST",
     headers: { 
       "Content-Type": "application/json",

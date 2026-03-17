@@ -18,6 +18,7 @@ VITE_VISION_API_KEY=xxx            # Anthropic API key for vision
 VITE_VISION_MODEL=claude-sonnet-4-20250514  # Optional: vision model
 VITE_TEST_BUTTON=true              # Set by --test-button flag
 VITE_TEST_IMAGE_PATH=tests/image.jpeg  # Optional: default test image
+VITE_USE_PROXY=true                # Use local proxy to avoid CORS (auto-set)
 ```
 
 ## Code Style Guidelines

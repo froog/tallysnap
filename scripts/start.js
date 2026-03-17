@@ -24,6 +24,7 @@ const testButton = args.includes('--test-button') || args.includes('-t');
 const env = {
   ...process.env,
   VITE_TEST_BUTTON: testButton ? 'true' : 'false',
+  VITE_USE_PROXY: 'true', // Always use proxy in dev mode
 };
 
 // Default test image path if not set
@@ -33,17 +34,21 @@ if (!env.VITE_TEST_IMAGE_PATH) {
 
 console.log(`Starting CardCount...`);
 console.log(`Test button: ${testButton ? 'ENABLED' : 'disabled'}`);
+console.log(`Proxy: ENABLED (to avoid CORS)`);
 if (testButton) {
   console.log(`Test image: ${env.VITE_TEST_IMAGE_PATH}`);
 }
 
-// Run vite dev server
-const vite = spawn('npx', ['vite', '--host'], {
+// Run proxy server and vite dev server concurrently
+const concurrently = spawn('npx', ['concurrently', '-n', 'PROXY,VITE', '-c', 'blue,green', 
+  '"node proxy.js"', 
+  '"npx vite --host"'
+], {
   env,
   stdio: 'inherit',
   shell: true,
 });
 
-vite.on('close', (code) => {
+concurrently.on('close', (code) => {
   process.exit(code);
 });
