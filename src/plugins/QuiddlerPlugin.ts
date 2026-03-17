@@ -11,7 +11,7 @@ const doubleLetters = ["ER", "CL", "IN", "TH", "QU"];
 
 const visionPrompt = `You are analyzing a photo of Quiddler card game cards laid out on a surface.
 
-CARD DESIGN: Each Quiddler card shows a letter (A-Z) or double-letter (TH, QU, IN, ER, CL) in an ornate Celtic style in the center. The letter also appears in SMALL PLAIN PRINT in the TOP-LEFT and BOTTOM-RIGHT corners, along with a small point value number. The ornate center letter can be hard to read — ALWAYS use the small plain corner text to confirm the letter. For example, the ornate "T" can look like "I" but the corner will clearly show "T".
+CARD DESIGN: Each Quiddler card has a decorative illustration in the center — IGNORE this illustration, it is not reliable for identifying the letter. Instead, ONLY read the small serif letter printed in the TOP-LEFT corner and the small number (point value) next to it. The same letter and number appear upside-down in the BOTTOM-RIGHT corner. These small corner labels are the ONLY reliable way to identify each card.
 
 CRITICAL - OVERLAPPING CARDS: Cards in a group are usually FANNED or OVERLAPPING, so you may only see the corner of partially hidden cards. You MUST look carefully at the small corner letters to count ALL cards in each fan/stack. A fan of 3 overlapping cards means 3 separate card letters, even if only the top card's center is fully visible. Count the visible corners!
 
