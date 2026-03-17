@@ -34,22 +34,18 @@ if (!process.env.VITE_VISION_API_KEY) {
 }
 
 // Set environment variables
-const env = {
-  ...process.env,
-  VITE_TEST_BUTTON: testButton ? 'true' : 'false',
-  VITE_USE_PROXY: 'true', // Always use proxy in dev mode
-};
+process.env.VITE_TEST_BUTTON = testButton ? 'true' : 'false';
 
 // Default test image path if not set
-if (!env.VITE_TEST_IMAGE_PATH) {
-  env.VITE_TEST_IMAGE_PATH = join(dirname(__dirname), 'tests', 'aged-eh-that.jpeg');
+if (!process.env.VITE_TEST_IMAGE_PATH) {
+  process.env.VITE_TEST_IMAGE_PATH = join(dirname(__dirname), 'tests', 'aged-eh-that.jpeg');
 }
 
 console.log(`Starting CardCount...`);
 console.log(`Test button: ${testButton ? 'ENABLED' : 'disabled'}`);
 console.log(`Proxy: ENABLED (to avoid CORS)`);
 if (testButton) {
-  console.log(`Test image: ${env.VITE_TEST_IMAGE_PATH}`);
+  console.log(`Test image: ${process.env.VITE_TEST_IMAGE_PATH}`);
 }
 
 // Run proxy server and vite dev server concurrently
@@ -57,7 +53,6 @@ const concurrently = spawn('npx', ['concurrently', '-n', 'PROXY,VITE', '-c', 'bl
   '"node proxy.js"', 
   '"npx vite --host"'
 ], {
-  env,
   stdio: 'inherit',
   shell: true,
 });

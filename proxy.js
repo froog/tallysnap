@@ -13,7 +13,7 @@ app.post('/api/anthropic/v1/messages', async (req, res) => {
   const apiKey = process.env.VITE_VISION_API_KEY;
   
   if (!apiKey) {
-    console.error('VITE_VISION_API_KEY not set');
+    console.error('ERROR: VITE_VISION_API_KEY not set');
     return res.status(500).json({ 
       error: 'Server configuration error: API key not configured' 
     });
