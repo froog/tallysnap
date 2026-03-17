@@ -91,6 +91,34 @@ async function loadDictionary() {
 }
 
 // ============================================================
+// TEST HARNESS - Load image from filesystem
+// ============================================================
+async function loadTestImage(imagePath) {
+  // For Node.js environment
+  if (typeof window === 'undefined') {
+    const fs = await import('fs');
+    const path = await import('path');
+    const imageBuffer = fs.readFileSync(imagePath);
+    const ext = path.extname(imagePath).toLowerCase();
+    const mimeType = ext === '.png' ? 'image/png' : 'image/jpeg';
+    const base64 = imageBuffer.toString('base64');
+    return `data:${mimeType};base64,${base64}`;
+  }
+  // For browser environment - fetch from public path
+  const response = await fetch(imagePath);
+  if (!response.ok) {
+    throw new Error(`Failed to load test image: ${response.status}`);
+  }
+  const blob = await response.blob();
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onloadend = () => resolve(reader.result);
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
+  });
+}
+
+// ============================================================
 // VISION API
 // ============================================================
 async function analyzeCards(base64Image, plugin) {
@@ -413,7 +441,7 @@ function EditWordModal({ cards: initialCards, plugin, onSave, onCancel, onDelete
 // ============================================================
 // MAIN APP
 // ============================================================
-export default function CardCount() {
+export default function CardCount({ testImagePath }) {
   const [screen, setScreen] = useState("home");
   const [plugin] = useState(QuiddlerPlugin);
   const [dictionary, setDictionary] = useState(null);
@@ -449,6 +477,23 @@ export default function CardCount() {
     [dictionary]
   );
 
+  const processImage = async (base64) => {
+    const words = await analyzeCards(base64, plugin);
+    setWordGroups(words.map((w) => w.map((c) => c.toUpperCase())));
+
+    if (autoScore) {
+      const results = plugin.scoreHand(words);
+      const validated = results.words.map((w) => ({
+        ...w,
+        valid: validateWord(w.cards),
+      }));
+      setScored({ ...results, words: validated });
+      setScreen("summary");
+    } else {
+      setScreen("review");
+    }
+  };
+
   const handlePhoto = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -465,22 +510,31 @@ export default function CardCount() {
         r.readAsDataURL(file);
       });
 
-      const words = await analyzeCards(base64, plugin);
-      setWordGroups(words.map((w) => w.map((c) => c.toUpperCase())));
-
-      if (autoScore) {
-        const results = plugin.scoreHand(words);
-        const validated = results.words.map((w) => ({
-          ...w,
-          valid: validateWord(w.cards),
-        }));
-        setScored({ ...results, words: validated });
-        setScreen("summary");
-      } else {
-        setScreen("review");
-      }
+      await processImage(base64);
     } catch (err) {
       setError(err.message || "Failed to analyze image");
+      setScreen("home");
+    } finally {
+      setProcessing(false);
+    }
+  };
+
+  const handleTestImage = async () => {
+    const imagePath = testImagePath || process.env.TEST_IMAGE_PATH;
+    if (!imagePath) {
+      setError("No test image path provided. Set TEST_IMAGE_PATH env var or pass testImagePath prop.");
+      return;
+    }
+
+    setProcessing(true);
+    setError(null);
+    setScreen("processing");
+
+    try {
+      const base64 = await loadTestImage(imagePath);
+      await processImage(base64);
+    } catch (err) {
+      setError(err.message || "Failed to load test image");
       setScreen("home");
     } finally {
       setProcessing(false);
@@ -564,6 +618,16 @@ export default function CardCount() {
             <ActionButton onClick={() => fileRef.current?.click()}>
               📷 Scan Hand
             </ActionButton>
+
+            {(testImagePath || process.env.TEST_IMAGE_PATH) && (
+              <ActionButton 
+                variant="secondary" 
+                onClick={handleTestImage}
+                style={{ marginTop: 12 }}
+              >
+                🧪 Test Image
+              </ActionButton>
+            )}
           </div>
 
           {error && (
