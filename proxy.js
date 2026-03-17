@@ -20,14 +20,29 @@ app.post('/api/anthropic/v1/messages', async (req, res) => {
   }
 
   try {
-    // Log the size of the image being sent
+    // Log the request details
+    console.log('\n=== REQUEST TO ANTHROPIC ===');
+    console.log('Model:', req.body.model);
+    console.log('Max tokens:', req.body.max_tokens);
+    
     const message = req.body.messages?.[0];
     const imageContent = message?.content?.find(c => c.type === 'image');
     if (imageContent?.source?.data) {
       const dataLength = imageContent.source.data.length;
       const sizeMB = (dataLength * 3 / 4 / 1024 / 1024).toFixed(2);
-      console.log(`Proxying image to Anthropic: ${sizeMB}MB (${dataLength} chars)`);
+      console.log('Image size:', `${sizeMB}MB (${dataLength} chars)`);
+      console.log('Image type:', imageContent.source.media_type);
     }
+    
+    console.log('\nRequest body preview (truncated):');
+    const bodyPreview = JSON.stringify(req.body, (key, value) => {
+      if (key === 'data' && typeof value === 'string' && value.length > 100) {
+        return `[${value.length} chars - truncated]`;
+      }
+      return value;
+    }, 2);
+    console.log(bodyPreview);
+    console.log('=== END REQUEST ===\n');
     
     const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
@@ -41,12 +56,17 @@ app.post('/api/anthropic/v1/messages', async (req, res) => {
 
     const data = await response.json();
     
+    console.log('\n=== RESPONSE FROM ANTHROPIC ===');
+    console.log('Status:', response.status);
+    console.log('Response:', JSON.stringify(data, null, 2));
+    console.log('=== END RESPONSE ===\n');
+    
     if (!response.ok) {
       console.error('Anthropic API error:', response.status, data);
       return res.status(response.status).json(data);
     }
 
-    console.log('Successfully proxied request');
+    console.log('Successfully proxied request\n');
     res.json(data);
   } catch (error) {
     console.error('Proxy error:', error);
