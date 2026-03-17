@@ -156,39 +156,56 @@ async function compressImage(base64DataUrl, maxSizeMB = 4.5) {
   return new Promise((resolve, reject) => {
     const img = new Image();
     img.onload = () => {
-      // Calculate initial scale factor based on target size
-      const scaleFactor = Math.sqrt(maxSizeBytes / currentSizeBytes);
+      // File size roughly scales with area, but JPEG has overhead
+      // Use a more conservative scale factor to ensure we hit target
+      // Also account for base64 overhead (~33%)
+      const scaleFactor = Math.sqrt((maxSizeBytes * 0.7) / currentSizeBytes);
       let width = Math.max(800, Math.floor(img.width * scaleFactor));
       let height = Math.max(600, Math.floor(img.height * scaleFactor));
-      let quality = 0.9;
+      let quality = 0.85;
+      let attempts = 0;
+      const maxAttempts = 15;
       
       const tryCompress = () => {
+        attempts++;
         const canvas = document.createElement('canvas');
         canvas.width = width;
         canvas.height = height;
         const ctx = canvas.getContext('2d');
+        
+        // Use better quality settings for canvas
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = 'high';
         ctx.drawImage(img, 0, 0, width, height);
         
         const compressed = canvas.toDataURL('image/jpeg', quality);
         const compressedSize = Math.ceil((compressed.length * 3) / 4);
         
+        console.log(`  Attempt ${attempts}: ${(compressedSize / 1024 / 1024).toFixed(2)}MB (${width}x${height}, q=${quality.toFixed(2)})`);
+        
         if (compressedSize <= maxSizeBytes) {
-          console.log(`Compressed to: ${(compressedSize / 1024 / 1024).toFixed(2)}MB (${width}x${height}, q=${quality})`);
+          console.log(`✓ Compressed to target: ${(compressedSize / 1024 / 1024).toFixed(2)}MB`);
           resolve(compressed);
-        } else if (quality > 0.6) {
-          // Try reducing quality first
-          quality -= 0.1;
-          tryCompress();
-        } else if (width > 800 && height > 600) {
-          // Then reduce dimensions
-          quality = 0.8;
-          width = Math.floor(width * 0.9);
-          height = Math.floor(height * 0.9);
+        } else if (attempts >= maxAttempts) {
+          // Max attempts reached, force aggressive compression
+          console.warn(`Max attempts reached. Forcing aggressive compression.`);
+          const finalCanvas = document.createElement('canvas');
+          finalCanvas.width = 800;
+          finalCanvas.height = Math.floor(800 * (img.height / img.width));
+          const finalCtx = finalCanvas.getContext('2d');
+          finalCtx.drawImage(img, 0, 0, finalCanvas.width, finalCanvas.height);
+          const finalCompressed = finalCanvas.toDataURL('image/jpeg', 0.7);
+          resolve(finalCompressed);
+        } else if (quality > 0.5) {
+          // Aggressive quality reduction
+          quality -= 0.15;
           tryCompress();
         } else {
-          // Minimum size reached
-          console.warn(`Cannot compress below ${(compressedSize / 1024 / 1024).toFixed(2)}MB`);
-          resolve(compressed);
+          // Reduce dimensions more aggressively
+          width = Math.max(800, Math.floor(width * 0.85));
+          height = Math.max(600, Math.floor(height * 0.85));
+          quality = 0.75;
+          tryCompress();
         }
       };
       
