@@ -4,7 +4,7 @@ import { QuiddlerPlugin } from './plugins/QuiddlerPlugin';
 import { loadDictionary } from './services/dictionary';
 import { analyzeCards } from './services/visionApi';
 import { loadTestImage } from './utils/imageLoader';
-import { ActionButton, CardChip, EditWordModal, Header, WordRow } from './components';
+import { ActionButton, EditWordModal, Header, WordRow } from './components';
 import styles from './App.module.css';
 
 type Screen = 'home' | 'processing' | 'review' | 'summary';
@@ -15,7 +15,7 @@ export default function App() {
   const [dictionary, setDictionary] = useState<Set<string> | null>(null);
   const [dictLoading, setDictLoading] = useState(true);
   const [wordGroups, setWordGroups] = useState<string[][]>([]);
-  const [processing, setProcessing] = useState(false);
+  const [, setProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [autoScore, setAutoScore] = useState(false);
   const [editingIdx, setEditingIdx] = useState<number | null>(null);
@@ -33,7 +33,7 @@ export default function App() {
 
   const validateWord = useCallback(
     (cards: string[]) => {
-      if (!dictionary) return null;
+      if (!dictionary) return undefined;
       const word = cards.map((c) => c.toUpperCase()).join("");
       return dictionary.has(word);
     },
