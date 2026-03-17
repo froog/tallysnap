@@ -36,9 +36,9 @@ if (!process.env.VITE_VISION_API_KEY) {
 // Set environment variables
 process.env.VITE_TEST_BUTTON = testButton ? 'true' : 'false';
 
-// Default test image path if not set
+// Default test image path if not set (must be in public/ dir for Vite to serve)
 if (!process.env.VITE_TEST_IMAGE_PATH) {
-  process.env.VITE_TEST_IMAGE_PATH = join(dirname(__dirname), 'tests', 'aged-eh-that.jpeg');
+  process.env.VITE_TEST_IMAGE_PATH = '/aged-eh-that.jpeg';
 }
 
 console.log(`Starting CardCount...`);
