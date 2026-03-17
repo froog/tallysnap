@@ -9,7 +9,7 @@ const SYSTEM_PROMPT = "You are an expert card reader with perfect vision. You ON
 
 export async function analyzeCards(base64Image: string, plugin: GamePlugin): Promise<string[][]> {
   console.log('analyzeCards called, original size:', Math.ceil(base64Image.length / 1024 / 1024), 'MB (base64 chars)');
-  const compressedImage = await compressImage(base64Image, 6.0);
+  const compressedImage = await compressImage(base64Image, 4.9);
   console.log('After compression, size:', Math.ceil(compressedImage.length / 1024 / 1024), 'MB (base64 chars)');
   
   const mediaType = compressedImage.startsWith("data:image/png") ? "image/png" : "image/jpeg";
