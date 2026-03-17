@@ -143,11 +143,12 @@ async function loadTestImage(imagePath) {
 // IMAGE COMPRESSION
 // ============================================================
 async function compressImage(base64DataUrl, maxSizeMB = 4.5) {
-  // Calculate current size (base64 is ~4/3 of binary size)
-  const currentSizeBytes = Math.ceil((base64DataUrl.length * 3) / 4);
+  // Anthropic counts base64 STRING LENGTH, not decoded bytes!
+  // The limit is actually on the base64 characters, not binary size
+  const currentSizeBytes = base64DataUrl.length;
   const maxSizeBytes = maxSizeMB * 1024 * 1024;
   
-  console.log(`compressImage: current=${(currentSizeBytes/1024/1024).toFixed(2)}MB, max=${(maxSizeBytes/1024/1024).toFixed(2)}MB, needsCompression=${currentSizeBytes > maxSizeBytes}`);
+  console.log(`compressImage: current=${(currentSizeBytes/1024/1024).toFixed(2)}MB (base64 chars), max=${(maxSizeBytes/1024/1024).toFixed(2)}MB, needsCompression=${currentSizeBytes > maxSizeBytes}`);
   
   if (currentSizeBytes <= maxSizeBytes) {
     console.log('Image within limits, no compression needed');
@@ -182,7 +183,7 @@ async function compressImage(base64DataUrl, maxSizeMB = 4.5) {
         ctx.drawImage(img, 0, 0, width, height);
         
         const compressed = canvas.toDataURL('image/jpeg', quality);
-        const compressedSize = Math.ceil((compressed.length * 3) / 4);
+        const compressedSize = compressed.length;
         
         console.log(`  Attempt ${attempts}: ${(compressedSize / 1024 / 1024).toFixed(2)}MB (${width}x${height}, q=${quality.toFixed(2)})`);
         
@@ -224,14 +225,14 @@ async function compressImage(base64DataUrl, maxSizeMB = 4.5) {
 // ============================================================
 async function analyzeCards(base64Image, plugin) {
   // Compress if needed (Anthropic has 5MB limit)
-  console.log('analyzeCards called, original size:', Math.ceil((base64Image.length * 3) / 4 / 1024 / 1024), 'MB');
+  console.log('analyzeCards called, original size:', Math.ceil(base64Image.length / 1024 / 1024), 'MB (base64 chars)');
   const compressedImage = await compressImage(base64Image, 4.5);
-  console.log('After compression, size:', Math.ceil((compressedImage.length * 3) / 4 / 1024 / 1024), 'MB');
+  console.log('After compression, size:', Math.ceil(compressedImage.length / 1024 / 1024), 'MB (base64 chars)');
   
   const mediaType = compressedImage.startsWith("data:image/png") ? "image/png" : "image/jpeg";
   const cleanBase64 = compressedImage.replace(/^data:image\/\w+;base64,/, "");
   
-  console.log('cleanBase64 size:', Math.ceil((cleanBase64.length * 3) / 4 / 1024 / 1024), 'MB');
+  console.log('cleanBase64 size:', Math.ceil(cleanBase64.length / 1024 / 1024), 'MB (base64 chars)');
   
   const model = import.meta.env.VITE_VISION_MODEL || "claude-sonnet-4-20250514";
   
