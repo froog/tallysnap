@@ -20,6 +20,19 @@ const __dirname = dirname(__filename);
 const args = process.argv.slice(2);
 const testButton = args.includes('--test-button') || args.includes('-t');
 
+// Check for required API key
+if (!process.env.VITE_VISION_API_KEY) {
+  console.error('❌ ERROR: VITE_VISION_API_KEY environment variable is required');
+  console.error('');
+  console.error('Please set your Anthropic API key:');
+  console.error('  export VITE_VISION_API_KEY="your_api_key_here"');
+  console.error('');
+  console.error('Or create a .env file:');
+  console.error('  echo "VITE_VISION_API_KEY=your_api_key_here" > .env');
+  console.error('');
+  process.exit(1);
+}
+
 // Set environment variables
 const env = {
   ...process.env,
