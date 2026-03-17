@@ -168,3 +168,33 @@ git commit -m "descriptive message"
 - Vision API uses Claude with base64 image encoding
 - Supports both browser and Node.js environments for test image loading
 - Use `npm start -- --test-button` for rapid development iteration
+
+
+## TODO List
+
+### Definition Feature Improvements
+- [ ] Cache definitions to avoid repeated API calls
+- [ ] Add loading shimmer/skeleton while definition loads
+- [ ] Handle long definitions with truncation + expand
+- [ ] Add pronunciation audio if available
+- [ ] Show multiple definitions on tap/click
+- [ ] Add part of speech filter
+
+### Mobile Experience
+- [ ] Test camera on more iOS devices
+- [ ] Add haptic feedback on successful scan
+- [ ] Optimize image picker for mobile
+- [ ] Test with poor network conditions
+
+### Testing & Quality
+- [ ] Add unit tests for dictionaryApi
+- [ ] Add integration tests for WordRow component
+- [ ] Test with various dictionary API errors
+- [ ] Performance profiling with many words
+
+### Future Enhancements
+- [ ] Support multiple card games (Scrabble, etc.)
+- [ ] Offline mode with cached dictionary
+- [ ] Score history/persistence
+- [ ] Share results feature
+
