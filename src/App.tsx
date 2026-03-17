@@ -59,7 +59,17 @@ export default function App() {
 
   const handlePhoto = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (!file) return;
+    if (!file) {
+      console.log('No file selected');
+      return;
+    }
+
+    console.log('File selected:', file.name, file.type, file.size);
+
+    // Check file size (warn if > 10MB for mobile)
+    if (file.size > 10 * 1024 * 1024) {
+      console.warn('Large file detected:', file.size);
+    }
 
     setProcessing(true);
     setError(null);
@@ -69,16 +79,40 @@ export default function App() {
       const base64 = await new Promise<string>((res, rej) => {
         const r = new FileReader();
         r.onload = () => res(r.result as string);
-        r.onerror = () => rej(new Error("Failed to read file"));
-        r.readAsDataURL(file);
+        r.onerror = (e) => {
+          console.error('FileReader error:', e);
+          rej(new Error(`Failed to read file: ${e}`));
+        };
+        r.onabort = () => rej(new Error("File reading aborted"));
+        
+        // Add timeout for mobile
+        const timeout = setTimeout(() => {
+          rej(new Error("File reading timeout - file may be too large"));
+        }, 30000); // 30 second timeout
+        
+        r.onloadend = () => clearTimeout(timeout);
+        
+        try {
+          r.readAsDataURL(file);
+        } catch (err) {
+          clearTimeout(timeout);
+          rej(new Error(`Error starting file read: ${err}`));
+        }
       });
 
+      console.log('File read successfully, size:', base64.length);
       await processImage(base64);
     } catch (err) {
-      setError((err as Error).message || "Failed to analyze image");
+      console.error('Error in handlePhoto:', err);
+      const errorMsg = (err as Error).message || "Failed to analyze image";
+      setError(`Photo error: ${errorMsg}`);
       setScreen('home');
     } finally {
       setProcessing(false);
+      // Reset file input so same file can be selected again
+      if (fileRef.current) {
+        fileRef.current.value = '';
+      }
     }
   };
 
@@ -138,7 +172,7 @@ export default function App() {
             <input
               ref={fileRef}
               type="file"
-              accept="image/*"
+              accept="image/jpeg,image/jpg,image/png,image/heic,image/heif"
               capture="environment"
               onChange={handlePhoto}
               className={styles.hidden}
