@@ -66,8 +66,9 @@ app.get('/health', (req, res) => {
 });
 
 const PORT = process.env.PROXY_PORT || 3001;
+const HOST = '0.0.0.0'; // Bind to all interfaces for mobile access
 
-app.listen(PORT, () => {
-  console.log(`Proxy server running on http://localhost:${PORT}`);
+app.listen(PORT, HOST, () => {
+  console.log(`Proxy server running on http://${HOST}:${PORT}`);
   console.log('API key configured:', !!process.env.VITE_VISION_API_KEY);
 });

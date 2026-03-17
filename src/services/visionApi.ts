@@ -16,7 +16,9 @@ export async function analyzeCards(base64Image: string, plugin: GamePlugin): Pro
   console.log('cleanBase64 size:', Math.ceil(cleanBase64.length / 1024 / 1024), 'MB (base64 chars)');
   
   const model = import.meta.env.VITE_VISION_MODEL || "claude-sonnet-4-20250514";
-  const apiUrl = "http://localhost:3001/api/anthropic/v1/messages";
+  // Use current host for mobile access (not localhost)
+  const apiHost = window.location.hostname === 'localhost' ? 'localhost' : window.location.hostname;
+  const apiUrl = `http://${apiHost}:3001/api/anthropic/v1/messages`;
 
   const response = await fetch(apiUrl, {
     method: "POST",
