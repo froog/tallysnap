@@ -21,6 +21,12 @@
   border: 1px solid color-mix(in srgb, var(--invalid) 26%, transparent);
 }
 
+.unused {
+  background: var(--invalid-bg);
+  border: 1px solid color-mix(in srgb, var(--invalid) 26%, transparent);
+  opacity: 0.8;
+}
+
 .top {
   display: flex;
   justify-content: space-between;
@@ -70,6 +76,17 @@
 
 .invalidText {
   color: var(--invalid);
+}
+
+.unusedText {
+  color: var(--invalid);
+}
+
+.pointsUnused {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--invalid);
+  font-family: 'Cormorant Garamond', Georgia, serif;
 }
 
 .edit {

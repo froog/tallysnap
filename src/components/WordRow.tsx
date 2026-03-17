@@ -7,28 +7,41 @@ import styles from './WordRow.module.css';
 interface WordRowProps {
   cards: string[];
   plugin: GamePlugin;
-  isValid?: boolean | null;
+  isValid?: boolean;
+  unused?: boolean;
   onRemoveCard?: (index: number) => void;
   onEditWord?: () => void;
 }
 
-export function WordRow({ cards, plugin, isValid, onRemoveCard, onEditWord }: WordRowProps) {
+export function WordRow({ cards, plugin, isValid, unused, onRemoveCard, onEditWord }: WordRowProps) {
   const points = plugin.wordPoints(cards);
   const word = cards.map((c) => c.toUpperCase()).join("");
   const letterCount = plugin.wordLetterCount(cards);
   const [definition, setDefinition] = useState<Definition | null>(null);
 
   useEffect(() => {
-    if (isValid === true) {
+    if (isValid === true && !unused) {
       lookupWord(word).then(setDefinition);
     }
-  }, [word, isValid]);
+  }, [word, isValid, unused]);
 
-  const rowClass = isValid === false 
+  const rowClass = unused
+    ? styles.unused
+    : isValid === false 
     ? styles.invalid 
     : isValid === true 
     ? styles.valid 
     : styles.neutral;
+
+  const statusText = unused
+    ? cards.length < 2
+      ? `${word} unused`
+      : `${word} unused — not in dictionary`
+    : isValid === true
+    ? `${word} ✓`
+    : isValid === false
+    ? `${word} ✗ not in dictionary`
+    : `${word} …`;
 
   return (
     <div className={`${styles.row} ${rowClass}`}>
@@ -44,13 +57,15 @@ export function WordRow({ cards, plugin, isValid, onRemoveCard, onEditWord }: Wo
           ))}
         </div>
         <div className={styles.score}>
-          <div className={styles.points}>{points}</div>
-          <div className={styles.letters}>{letterCount} letters</div>
+          <div className={unused ? styles.pointsUnused : styles.points}>
+            {unused ? `-${points}` : points}
+          </div>
+          <div className={styles.letters}>{letterCount} {letterCount === 1 ? 'letter' : 'letters'}</div>
         </div>
       </div>
       <div className={styles.bottom}>
-        <span className={`${styles.word} ${isValid === false ? styles.invalidText : isValid === true ? styles.validText : ''}`}>
-          {word} {isValid === true ? "✓" : isValid === false ? "✗ not in dictionary" : "…"}
+        <span className={`${styles.word} ${unused ? styles.unusedText : isValid === false ? styles.invalidText : isValid === true ? styles.validText : ''}`}>
+          {statusText}
         </span>
         {onEditWord && (
           <button onClick={onEditWord} className={styles.edit}>

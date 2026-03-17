@@ -8,13 +8,16 @@ export interface WordResult {
   points: number;
   letters: number;
   valid?: boolean;
+  unused?: boolean;
 }
 
 export interface ScoreResult {
   words: WordResult[];
   total: number;
+  wordPoints: number;
+  unusedPoints: number;
   wordCount: number;
-  longest: WordResult;
+  longest: WordResult | null;
 }
 
 export interface Definition {

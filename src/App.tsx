@@ -48,17 +48,37 @@ export default function App() {
     [dictionary]
   );
 
+  const scoreGroups = (groups: string[][]) => {
+    const results = plugin.scoreHand(groups);
+    const validated = results.words.map((w) => {
+      const isUnused = w.cards.length < 2 || !validateWord(w.cards);
+      const valid = w.cards.length >= 2 ? validateWord(w.cards) : undefined;
+      return { ...w, valid: isUnused ? undefined : valid, unused: isUnused };
+    });
+
+    const wPoints = validated
+      .filter((w) => !w.unused)
+      .reduce((s, w) => s + w.points, 0);
+    const uPoints = validated
+      .filter((w) => w.unused)
+      .reduce((s, w) => s + w.points, 0);
+    const total = Math.max(0, wPoints - uPoints);
+    const wordCount = validated.filter((w) => !w.unused).length;
+    const wordResults = validated.filter((w) => !w.unused);
+    const longest = wordResults.length > 0
+      ? wordResults.reduce((max, w) => w.letters > max.letters ? w : max, wordResults[0])
+      : null;
+
+    return { words: validated, total, wordPoints: wPoints, unusedPoints: uPoints, wordCount, longest };
+  };
+
   const processImage = async (base64: string) => {
     const words = await analyzeCards(base64, plugin);
-    setWordGroups(words.map((w) => w.map((c) => c.toUpperCase())));
+    const uppercased = words.map((w) => w.map((c) => c.toUpperCase()));
+    setWordGroups(uppercased);
 
     if (autoScore) {
-      const results = plugin.scoreHand(words);
-      const validated = results.words.map((w) => ({
-        ...w,
-        valid: validateWord(w.cards),
-      }));
-      setScored({ ...results, words: validated });
+      setScored(scoreGroups(uppercased));
       setScreen('summary');
     } else {
       setScreen('review');
@@ -143,13 +163,7 @@ export default function App() {
   const showTestButton = import.meta.env.VITE_TEST_BUTTON === "true";
 
   const doScore = () => {
-    const validGroups = wordGroups.filter((g) => g.length >= 2);
-    const results = plugin.scoreHand(validGroups);
-    const validated = results.words.map((w) => ({
-      ...w,
-      valid: validateWord(w.cards),
-    }));
-    setScored({ ...results, words: validated });
+    setScored(scoreGroups(wordGroups));
     setScreen('summary');
   };
 
@@ -305,18 +319,29 @@ export default function App() {
 
   // Summary screen
   if (screen === 'summary' && scored) {
-    const invalidWords = scored.words.filter((w) => w.valid === false);
-    const validTotal = scored.words
-      .filter((w) => w.valid !== false)
-      .reduce((s, w) => s + w.points, 0);
+    const validWords = scored.words.filter((w) => !w.unused);
+    const unusedWords = scored.words.filter((w) => w.unused);
 
     return (
       <div className={styles.container}>
         <Header title="Score" subtitle={plugin.name} onBack={() => setScreen('review')} />
 
         <div className={styles.scoreDisplay}>
-          <div className={styles.bigScore}>{validTotal}</div>
-          <div className={styles.scoreLabel}>points from valid words</div>
+          <div className={styles.bigScore}>{scored.total}</div>
+          <div className={styles.scoreLabel}>total points</div>
+
+          <div className={styles.scoreBreakdown}>
+            <div className={styles.breakdownRow}>
+              <span className={styles.breakdownLabel}>Words</span>
+              <span className={styles.breakdownValue}>+{scored.wordPoints}</span>
+            </div>
+            {scored.unusedPoints > 0 && (
+              <div className={styles.breakdownRow}>
+                <span className={styles.breakdownLabel}>Unused cards</span>
+                <span className={styles.breakdownValueNeg}>-{scored.unusedPoints}</span>
+              </div>
+            )}
+          </div>
 
           <div className={styles.stats}>
             <div className={styles.stat}>
@@ -330,19 +355,26 @@ export default function App() {
           </div>
         </div>
 
-        <div className={styles.sectionTitle}>Word Breakdown</div>
+        {validWords.length > 0 && (
+          <>
+            <div className={styles.sectionTitle}>Words</div>
+            <div className={styles.wordList}>
+              {validWords.map((w, i) => (
+                <WordRow key={i} cards={w.cards} plugin={plugin} isValid={w.valid} />
+              ))}
+            </div>
+          </>
+        )}
 
-        <div className={styles.wordList}>
-          {scored.words.map((w, i) => (
-            <WordRow key={i} cards={w.cards} plugin={plugin} isValid={w.valid} />
-          ))}
-        </div>
-
-        {invalidWords.length > 0 && (
-          <div className={styles.warning}>
-            {invalidWords.length} word{invalidWords.length > 1 ? "s" : ""} not found in SOWPODS dictionary.
-            Points shown but excluded from total.
-          </div>
+        {unusedWords.length > 0 && (
+          <>
+            <div className={styles.sectionTitle}>Unused Cards</div>
+            <div className={styles.wordList}>
+              {unusedWords.map((w, i) => (
+                <WordRow key={`unused-${i}`} cards={w.cards} plugin={plugin} unused />
+              ))}
+            </div>
+          </>
         )}
 
         <div className={styles.actions}>

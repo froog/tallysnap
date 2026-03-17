@@ -43,12 +43,31 @@ describe('QuiddlerPlugin', () => {
   });
 
   describe('scoreHand', () => {
-    it('calculates total score and stats', () => {
+    it('calculates total score and stats for multi-card words', () => {
       const result = QuiddlerPlugin.scoreHand([['C', 'A', 'T'], ['TH', 'E']]);
       
       expect(result.total).toBe(24); // 13 + 11
+      expect(result.wordPoints).toBe(24);
+      expect(result.unusedPoints).toBe(0);
       expect(result.wordCount).toBe(2);
       expect(result.words).toHaveLength(2);
+    });
+
+    it('excludes single-card groups from word total', () => {
+      const result = QuiddlerPlugin.scoreHand([['C', 'A', 'T'], ['Z']]);
+      
+      expect(result.total).toBe(13); // only CAT counts
+      expect(result.wordPoints).toBe(13);
+      expect(result.wordCount).toBe(1);
+      expect(result.words).toHaveLength(2); // both groups present
+    });
+
+    it('returns null longest when no multi-card words', () => {
+      const result = QuiddlerPlugin.scoreHand([['Z'], ['Y']]);
+      
+      expect(result.total).toBe(0);
+      expect(result.wordCount).toBe(0);
+      expect(result.longest).toBeNull();
     });
   });
 });

@@ -245,6 +245,35 @@
   margin-top: 4px;
 }
 
+.scoreBreakdown {
+  margin-top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: center;
+}
+
+.breakdownRow {
+  display: flex;
+  justify-content: space-between;
+  width: 200px;
+  font-size: 15px;
+}
+
+.breakdownLabel {
+  color: var(--text-dim);
+}
+
+.breakdownValue {
+  color: var(--valid);
+  font-weight: 600;
+}
+
+.breakdownValueNeg {
+  color: var(--invalid);
+  font-weight: 600;
+}
+
 .stats {
   display: flex;
   justify-content: center;
