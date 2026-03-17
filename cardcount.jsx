@@ -117,7 +117,9 @@ async function loadTestImage(imagePath) {
   
   // For browser environment - fetch from public path
   // Path should start with / for Vite public directory
-  const response = await fetch(imagePath);
+  // Add cache-busting timestamp to avoid 304 Not Modified
+  const cacheBuster = `?_=${Date.now()}`;
+  const response = await fetch(imagePath + cacheBuster);
   if (!response.ok) {
     throw new Error(`Failed to load test image: ${response.status} ${response.statusText}`);
   }
