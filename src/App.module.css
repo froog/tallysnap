@@ -1,0 +1,270 @@
+.container {
+  max-width: 420px;
+  margin: 0 auto;
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  padding: 0 20px 40px;
+  position: relative;
+}
+
+.centered {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Home screen */
+.hero {
+  padding-top: 60px;
+  text-align: center;
+}
+
+.tagline {
+  font-size: 14px;
+  letter-spacing: 4px;
+  color: var(--accent-dim);
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.title {
+  font-size: 48px;
+  font-weight: 700;
+  color: var(--accent);
+  margin: 0 0 4px;
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  letter-spacing: 2px;
+}
+
+.subtitle {
+  color: var(--text-dim);
+  font-size: 15px;
+  margin: 0 0 48px;
+}
+
+.card {
+  background: var(--surface);
+  border-radius: 16px;
+  padding: 24px;
+  border: 1px solid var(--border);
+  margin-bottom: 24px;
+}
+
+.cardLabel {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: var(--text-dim);
+  margin-bottom: 12px;
+}
+
+.gameName {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 20px;
+}
+
+.hidden {
+  display: none;
+}
+
+.testButton {
+  margin-top: 12px;
+}
+
+.error {
+  background: var(--invalid-bg);
+  border: 1px solid color-mix(in srgb, var(--invalid) 26%, transparent);
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 24px;
+  font-size: 14px;
+  color: var(--invalid);
+  text-align: left;
+}
+
+.settings {
+  background: var(--surface);
+  border-radius: 16px;
+  padding: 20px;
+  border: 1px solid var(--border);
+}
+
+.setting {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+}
+
+.setting:first-child {
+  border-bottom: 1px solid var(--border);
+}
+
+.settingTitle {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.settingDesc {
+  font-size: 12px;
+  color: var(--text-dim);
+}
+
+.toggle {
+  width: 48px;
+  height: 28px;
+  border-radius: 14px;
+  border: none;
+  background: var(--card);
+  cursor: pointer;
+  position: relative;
+  transition: background 0.2s;
+}
+
+.toggleOn {
+  background: var(--accent);
+}
+
+.toggleKnob {
+  width: 22px;
+  height: 22px;
+  border-radius: 11px;
+  background: var(--text-dim);
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  transition: left 0.2s;
+}
+
+.toggleKnobOn {
+  left: 23px;
+  background: var(--bg);
+}
+
+.badge {
+  font-size: 12px;
+  padding: 4px 10px;
+  border-radius: 8px;
+}
+
+.badgeLoading {
+  background: var(--card);
+  color: var(--text-dim);
+}
+
+.badgeOk {
+  background: var(--valid-bg);
+  color: var(--valid);
+}
+
+/* Processing screen */
+.loading {
+  text-align: center;
+}
+
+.spinner {
+  width: 56px;
+  height: 56px;
+  border: 3px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  margin: 0 auto 24px;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.loadingText {
+  font-size: 18px;
+  color: var(--text);
+  font-weight: 600;
+}
+
+.loadingSubtext {
+  font-size: 14px;
+  color: var(--text-dim);
+  margin-top: 4px;
+}
+
+/* Review/Summary screens */
+.wordList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.actions {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+/* Summary screen */
+.scoreDisplay {
+  text-align: center;
+  padding: 24px 0 32px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 24px;
+}
+
+.bigScore {
+  font-size: 72px;
+  font-weight: 700;
+  color: var(--accent);
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  line-height: 1;
+}
+
+.scoreLabel {
+  font-size: 14px;
+  color: var(--text-dim);
+  margin-top: 4px;
+}
+
+.stats {
+  display: flex;
+  justify-content: center;
+  gap: 32px;
+  margin-top: 20px;
+}
+
+.stat {
+  text-align: center;
+}
+
+.statValue {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.statLabel {
+  font-size: 12px;
+  color: var(--text-dim);
+}
+
+.sectionTitle {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: var(--text-dim);
+  margin-bottom: 12px;
+}
+
+.warning {
+  background: var(--invalid-bg);
+  border: 1px solid color-mix(in srgb, var(--invalid) 26%, transparent);
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 24px;
+  font-size: 14px;
+  color: var(--invalid);
+}

@@ -1,0 +1,30 @@
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: linear-gradient(135deg, var(--card), var(--card-hover));
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 6px 10px;
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--accent);
+  position: relative;
+}
+
+.points {
+  font-size: 11px;
+  color: var(--text-dim);
+  font-weight: 400;
+}
+
+.remove {
+  background: none;
+  border: none;
+  color: var(--invalid);
+  cursor: pointer;
+  font-size: 14px;
+  padding: 0 0 0 4px;
+  line-height: 1;
+}

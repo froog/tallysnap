@@ -1,0 +1,28 @@
+:root {
+  --bg: #1a1915;
+  --surface: #252219;
+  --card: #2f2b22;
+  --card-hover: #3a3529;
+  --accent: #c9a84c;
+  --accent-dim: #8a7233;
+  --text: #e8e0d0;
+  --text-dim: #9a917e;
+  --valid: #5b8c5a;
+  --valid-bg: #2a3529;
+  --invalid: #c45c4a;
+  --invalid-bg: #352a28;
+  --border: #3d3728;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background: var(--bg);
+  min-height: 100vh;
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  color: var(--text);
+}

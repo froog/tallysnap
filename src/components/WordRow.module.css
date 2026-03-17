@@ -1,0 +1,83 @@
+.row {
+  border-radius: 12px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.neutral {
+  background: var(--surface);
+  border: 1px solid var(--border);
+}
+
+.valid {
+  background: var(--valid-bg);
+  border: 1px solid color-mix(in srgb, var(--valid) 26%, transparent);
+}
+
+.invalid {
+  background: var(--invalid-bg);
+  border: 1px solid color-mix(in srgb, var(--invalid) 26%, transparent);
+}
+
+.top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.cards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.score {
+  text-align: right;
+  min-width: 60px;
+}
+
+.points {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--accent);
+  font-family: 'Cormorant Garamond', Georgia, serif;
+}
+
+.letters {
+  font-size: 11px;
+  color: var(--text-dim);
+}
+
+.bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.word {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.validText {
+  color: var(--valid);
+}
+
+.invalidText {
+  color: var(--invalid);
+}
+
+.edit {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  border-radius: 6px;
+  padding: 4px 10px;
+  font-size: 12px;
+  cursor: pointer;
+}

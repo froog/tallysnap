@@ -1,0 +1,36 @@
+.container {
+  padding: 20px 0 12px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 20px;
+}
+
+.content {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.back {
+  background: none;
+  border: none;
+  color: var(--accent);
+  font-size: 24px;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+}
+
+.title {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--text);
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  letter-spacing: 1px;
+}
+
+.subtitle {
+  margin: 2px 0 0;
+  font-size: 13px;
+  color: var(--text-dim);
+}
