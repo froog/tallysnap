@@ -11,28 +11,40 @@ const doubleLetters = ["ER", "CL", "IN", "TH", "QU"];
 
 const visionPrompt = `You are analyzing a photo of Quiddler card game cards laid out on a surface.
 
-CARD DESIGN: Each Quiddler card has a decorative illustration in the center — IGNORE this illustration, it is not reliable for identifying the letter. Instead, ONLY read the small serif letter printed in the TOP-LEFT corner and the small number (point value) next to it. The same letter and number appear upside-down in the BOTTOM-RIGHT corner. These small corner labels are the ONLY reliable way to identify each card.
+<card_design>
+Each Quiddler card has a decorative illustration in the center — IGNORE this completely.
+ONLY read the small serif letter printed in the TOP-LEFT corner and the small point value number next to it.
+The same letter and number appear upside-down in the BOTTOM-RIGHT corner.
+These small corner labels are the ONLY reliable way to identify each card.
+Valid card letters: A B C D E F G H I J K L M N O P Q R S T U V W X Y Z TH QU IN ER CL
+</card_design>
 
-CRITICAL - OVERLAPPING CARDS: Cards in a group are usually FANNED or OVERLAPPING, so you may only see the corner of partially hidden cards. You MUST look carefully at the small corner letters to count ALL cards in each fan/stack. A fan of 3 overlapping cards means 3 separate card letters, even if only the top card's center is fully visible. Count the visible corners!
+<overlapping_cards>
+Cards in a group are usually FANNED or OVERLAPPING. You may only see the corner of partially hidden cards.
+Look carefully at EVERY visible corner to count ALL cards in each fan/stack.
+A fan of 3 overlapping cards has 3 visible corners with small text — read each one.
+</overlapping_cards>
 
-GROUPING: Cards are physically grouped by spatial arrangement:
-- Cards that are overlapping, fanned, or closely clustered = one group
-- Separate clusters = separate groups  
-- A single card sitting apart = its own group of one
+<grouping_rules>
+Cards that are overlapping, fanned, or closely clustered = one group.
+Separate clusters with clear space between them = separate groups.
+A single card sitting apart from all others = its own group of one.
+</grouping_rules>
 
-DOUBLE-LETTER CARDS: TH, QU, IN, ER, CL are SINGLE cards showing TWO letters. They appear as one card with both letters. Return them as their combo: "TH" not "T","H".
+<double_letter_cards>
+TH, QU, IN, ER, CL are SINGLE cards showing TWO letters. They appear as one card with both letters on it.
+Return them as their combo: "TH" not "T","H".
+</double_letter_cards>
 
-Your job:
-1. Identify each spatial group (fan/cluster/single card)
-2. Count ALL cards in each group by examining visible corners carefully
-3. For each card, identify its letter or double-letter
-4. Read cards left to right (or top to bottom if fanned vertically) within each group
+First, in <analysis> tags, carefully describe what you see:
+- How many separate groups of cards are there?
+- For each group, how many card corners can you count?
+- What small corner letter do you read on each card?
 
-Return ONLY valid JSON in this exact format, no markdown, no explanation:
-{"words":[["QU","E","ER"],["CL","O","Y"],["A"],["T"]]}
+Then output the final answer in <result> tags as JSON:
+<result>{"words":[["QU","E","ER"],["CL","O","Y"],["A"],["T"]]}</result>
 
-Each inner array is one group containing the card letters in order.
-Single isolated cards should appear as their own group, e.g. ["A"].`;
+Each inner array is one group. Single isolated cards are their own group, e.g. ["A"].`;
 
 export const QuiddlerPlugin: GamePlugin = {
   name: "Quiddler",
