@@ -23,22 +23,22 @@ const testButton = args.includes('--test-button') || args.includes('-t');
 // Set environment variables
 const env = {
   ...process.env,
-  TEST_BUTTON: testButton ? 'true' : 'false',
+  VITE_TEST_BUTTON: testButton ? 'true' : 'false',
 };
 
 // Default test image path if not set
-if (!env.TEST_IMAGE_PATH) {
-  env.TEST_IMAGE_PATH = join(dirname(__dirname), 'tests', 'aged-eh-that.jpeg');
+if (!env.VITE_TEST_IMAGE_PATH) {
+  env.VITE_TEST_IMAGE_PATH = join(dirname(__dirname), 'tests', 'aged-eh-that.jpeg');
 }
 
 console.log(`Starting CardCount...`);
 console.log(`Test button: ${testButton ? 'ENABLED' : 'disabled'}`);
 if (testButton) {
-  console.log(`Test image: ${env.TEST_IMAGE_PATH}`);
+  console.log(`Test image: ${env.VITE_TEST_IMAGE_PATH}`);
 }
 
 // Run vite dev server
-const vite = spawn('npx', ['vite'], {
+const vite = spawn('npx', ['vite', '--host'], {
   env,
   stdio: 'inherit',
   shell: true,

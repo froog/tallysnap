@@ -5,9 +5,9 @@
   "type": "module",
   "scripts": {
     "start": "node scripts/start.js",
-    "dev": "vite",
+    "dev": "vite --host",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview --host"
   },
   "dependencies": {
     "react": "^18.2.0",

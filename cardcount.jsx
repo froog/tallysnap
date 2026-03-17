@@ -122,14 +122,14 @@ async function loadTestImage(imagePath) {
 // VISION API
 // ============================================================
 async function analyzeCards(base64Image, plugin) {
-  const apiKey = process.env.VISION_API_KEY;
+  const apiKey = import.meta.env.VITE_VISION_API_KEY;
   if (!apiKey) {
-    throw new Error("VISION_API_KEY environment variable is required");
+    throw new Error("VITE_VISION_API_KEY environment variable is required");
   }
 
   const mediaType = base64Image.startsWith("data:image/png") ? "image/png" : "image/jpeg";
   const cleanBase64 = base64Image.replace(/^data:image\/\w+;base64,/, "");
-  const model = process.env.VISION_MODEL || "claude-sonnet-4-20250514";
+  const model = import.meta.env.VITE_VISION_MODEL || "claude-sonnet-4-20250514";
 
   const response = await fetch("https://api.anthropic.com/v1/messages", {
     method: "POST",
@@ -520,9 +520,9 @@ export default function CardCount() {
   };
 
   const handleTestImage = async () => {
-    const imagePath = process.env.TEST_IMAGE_PATH;
+    const imagePath = import.meta.env.VITE_TEST_IMAGE_PATH;
     if (!imagePath) {
-      setError("No test image path provided. Set TEST_IMAGE_PATH env var.");
+      setError("No test image path provided. Set VITE_TEST_IMAGE_PATH env var.");
       return;
     }
 
@@ -541,7 +541,7 @@ export default function CardCount() {
     }
   };
 
-  const showTestButton = process.env.TEST_BUTTON === "true";
+  const showTestButton = import.meta.env.VITE_TEST_BUTTON === "true";
 
   const doScore = () => {
     const validGroups = wordGroups.filter((g) => g.length >= 2);
