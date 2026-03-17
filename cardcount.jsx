@@ -147,7 +147,10 @@ async function compressImage(base64DataUrl, maxSizeMB = 4.5) {
   const currentSizeBytes = Math.ceil((base64DataUrl.length * 3) / 4);
   const maxSizeBytes = maxSizeMB * 1024 * 1024;
   
+  console.log(`compressImage: current=${(currentSizeBytes/1024/1024).toFixed(2)}MB, max=${(maxSizeBytes/1024/1024).toFixed(2)}MB, needsCompression=${currentSizeBytes > maxSizeBytes}`);
+  
   if (currentSizeBytes <= maxSizeBytes) {
+    console.log('Image within limits, no compression needed');
     return base64DataUrl;
   }
   
@@ -221,7 +224,9 @@ async function compressImage(base64DataUrl, maxSizeMB = 4.5) {
 // ============================================================
 async function analyzeCards(base64Image, plugin) {
   // Compress if needed (Anthropic has 5MB limit)
+  console.log('analyzeCards called, original size:', Math.ceil((base64Image.length * 3) / 4 / 1024 / 1024), 'MB');
   const compressedImage = await compressImage(base64Image, 4.5);
+  console.log('After compression, size:', Math.ceil((compressedImage.length * 3) / 4 / 1024 / 1024), 'MB');
   
   const mediaType = compressedImage.startsWith("data:image/png") ? "image/png" : "image/jpeg";
   const cleanBase64 = compressedImage.replace(/^data:image\/\w+;base64,/, "");
