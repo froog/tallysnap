@@ -140,11 +140,74 @@ async function loadTestImage(imagePath) {
 }
 
 // ============================================================
+// IMAGE COMPRESSION
+// ============================================================
+async function compressImage(base64DataUrl, maxSizeMB = 4.5) {
+  // Calculate current size (base64 is ~4/3 of binary size)
+  const currentSizeBytes = Math.ceil((base64DataUrl.length * 3) / 4);
+  const maxSizeBytes = maxSizeMB * 1024 * 1024;
+  
+  if (currentSizeBytes <= maxSizeBytes) {
+    return base64DataUrl;
+  }
+  
+  console.log(`Compressing image: ${(currentSizeBytes / 1024 / 1024).toFixed(2)}MB → target ${maxSizeMB}MB`);
+  
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => {
+      // Calculate initial scale factor based on target size
+      const scaleFactor = Math.sqrt(maxSizeBytes / currentSizeBytes);
+      let width = Math.max(800, Math.floor(img.width * scaleFactor));
+      let height = Math.max(600, Math.floor(img.height * scaleFactor));
+      let quality = 0.9;
+      
+      const tryCompress = () => {
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+        
+        const compressed = canvas.toDataURL('image/jpeg', quality);
+        const compressedSize = Math.ceil((compressed.length * 3) / 4);
+        
+        if (compressedSize <= maxSizeBytes) {
+          console.log(`Compressed to: ${(compressedSize / 1024 / 1024).toFixed(2)}MB (${width}x${height}, q=${quality})`);
+          resolve(compressed);
+        } else if (quality > 0.6) {
+          // Try reducing quality first
+          quality -= 0.1;
+          tryCompress();
+        } else if (width > 800 && height > 600) {
+          // Then reduce dimensions
+          quality = 0.8;
+          width = Math.floor(width * 0.9);
+          height = Math.floor(height * 0.9);
+          tryCompress();
+        } else {
+          // Minimum size reached
+          console.warn(`Cannot compress below ${(compressedSize / 1024 / 1024).toFixed(2)}MB`);
+          resolve(compressed);
+        }
+      };
+      
+      tryCompress();
+    };
+    img.onerror = () => reject(new Error('Failed to load image for compression'));
+    img.src = base64DataUrl;
+  });
+}
+
+// ============================================================
 // VISION API
 // ============================================================
 async function analyzeCards(base64Image, plugin) {
-  const mediaType = base64Image.startsWith("data:image/png") ? "image/png" : "image/jpeg";
-  const cleanBase64 = base64Image.replace(/^data:image\/\w+;base64,/, "");
+  // Compress if needed (Anthropic has 5MB limit)
+  const compressedImage = await compressImage(base64Image, 4.5);
+  
+  const mediaType = compressedImage.startsWith("data:image/png") ? "image/png" : "image/jpeg";
+  const cleanBase64 = compressedImage.replace(/^data:image\/\w+;base64,/, "");
   const model = import.meta.env.VITE_VISION_MODEL || "claude-sonnet-4-20250514";
   
   // API key is handled by the proxy server, not sent to client
