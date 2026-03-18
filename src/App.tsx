@@ -93,13 +93,17 @@ function calculateRoundBonuses(roundScores: (PlayerRoundScore | null)[]): RoundB
     if (longest > maxLetterCount) maxLetterCount = longest;
   }
 
+  const mostIdxs = maxWordCount > 0
+    ? playerWordCounts.map((c, i) => c === maxWordCount ? i : -1).filter((i) => i >= 0)
+    : [];
+  const longestIdxs = maxLetterCount > 0
+    ? playerLongest.map((c, i) => c === maxLetterCount ? i : -1).filter((i) => i >= 0)
+    : [];
+
+  // No bonus awarded on ties
   return {
-    mostWordsPlayerIdxs: maxWordCount > 0
-      ? playerWordCounts.map((c, i) => c === maxWordCount ? i : -1).filter((i) => i >= 0)
-      : [],
-    longestWordPlayerIdxs: maxLetterCount > 0
-      ? playerLongest.map((c, i) => c === maxLetterCount ? i : -1).filter((i) => i >= 0)
-      : [],
+    mostWordsPlayerIdxs: mostIdxs.length === 1 ? mostIdxs : [],
+    longestWordPlayerIdxs: longestIdxs.length === 1 ? longestIdxs : [],
   };
 }
 
