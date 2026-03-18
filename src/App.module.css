@@ -278,3 +278,49 @@
   font-size: 14px;
   color: var(--invalid);
 }
+
+/* Divider between New Game and Quick Scan */
+.divider {
+  height: 1px;
+  background: var(--border);
+  margin: 16px 0;
+}
+
+/* Resume prompt */
+.resumeCard {
+  background: var(--surface);
+  border-radius: 16px;
+  padding: 32px 24px;
+  border: 1px solid var(--border);
+  text-align: center;
+  width: 100%;
+  max-width: 320px;
+}
+
+.resumeTitle {
+  margin: 0 0 8px;
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--text);
+  font-family: 'Cormorant Garamond', Georgia, serif;
+}
+
+.resumeDetail {
+  margin: 0 0 24px;
+  font-size: 14px;
+  color: var(--text-dim);
+}
+
+.resumeActions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Game screen */
+.gameActions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 8px;
+}

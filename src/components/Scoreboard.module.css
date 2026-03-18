@@ -1,0 +1,126 @@
+.tableWrap {
+  overflow-x: auto;
+  margin-bottom: 20px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 14px;
+}
+
+.table th,
+.table td {
+  padding: 8px 10px;
+  text-align: center;
+  border-bottom: 1px solid var(--border);
+}
+
+.roundHeader {
+  text-align: left;
+  color: var(--text-dim);
+  font-weight: 600;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  background: var(--surface);
+}
+
+.playerHeader {
+  color: var(--text);
+  font-weight: 700;
+  font-size: 14px;
+  background: var(--surface);
+  min-width: 60px;
+}
+
+.roundCell {
+  text-align: left;
+  color: var(--text-dim);
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.scoreCell {
+  color: var(--text);
+  font-weight: 600;
+  font-size: 15px;
+}
+
+/* Row states */
+.currentRow {
+  background: color-mix(in srgb, var(--accent) 10%, var(--bg));
+}
+
+.currentRow .roundCell {
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.pastRow {
+  background: var(--bg);
+}
+
+.futureRow {
+  background: var(--bg);
+  opacity: 0.4;
+}
+
+.indicator {
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.currentCell {
+  color: var(--accent);
+  font-style: italic;
+}
+
+/* Bonus rows */
+.bonusRow {
+  background: var(--surface);
+}
+
+.bonusRow td {
+  border-bottom: 1px solid var(--border);
+}
+
+.bonusLabel {
+  text-align: left;
+  color: var(--valid);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.bonusCell {
+  color: var(--valid);
+  font-weight: 600;
+  font-size: 13px;
+}
+
+/* Total row */
+.totalRow {
+  background: var(--surface);
+}
+
+.totalRow td {
+  border-bottom: none;
+}
+
+.totalLabel {
+  text-align: left;
+  color: var(--accent);
+  font-weight: 700;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.totalCell {
+  color: var(--accent);
+  font-weight: 700;
+  font-size: 18px;
+}
