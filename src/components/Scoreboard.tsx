@@ -76,13 +76,11 @@ export function Scoreboard({ gameState }: ScoreboardProps) {
                 </td>
                 {players.map((_, playerIdx) => {
                   const score = scores[roundIdx]?.[playerIdx];
-                  const isCurrentPlayer = isCurrent && playerIdx === gameState.currentPlayerIdx;
+                  const isCurrentPlayer = isCurrent && !complete && playerIdx === gameState.currentPlayerIdx;
 
                   let cellContent: string;
                   if (score) {
                     cellContent = String(score.result.total);
-                  } else if (isCurrent && isPastPlayer(roundIdx, playerIdx, gameState)) {
-                    cellContent = '--';
                   } else if (isCurrent) {
                     cellContent = '--';
                   } else {
@@ -143,13 +141,4 @@ export function Scoreboard({ gameState }: ScoreboardProps) {
       </table>
     </div>
   );
-}
-
-function isPastPlayer(
-  _roundIdx: number,
-  _playerIdx: number,
-  _gameState: GameState
-): boolean {
-  // All unscanned players in current round show '--'
-  return true;
 }

@@ -58,6 +58,20 @@ function createGameState(players: Player[]): GameState {
   };
 }
 
+function getStartPlayerIdx(round: number, playerCount: number): number {
+  return round % playerCount;
+}
+
+function getNextScanPlayerIdx(
+  currentIdx: number,
+  startIdx: number,
+  playerCount: number
+): number | null {
+  const scannedCount = ((currentIdx - startIdx + playerCount) % playerCount) + 1;
+  if (scannedCount >= playerCount) return null; // round complete
+  return (currentIdx + 1) % playerCount;
+}
+
 function calculateRoundBonuses(roundScores: (PlayerRoundScore | null)[]): RoundBonuses {
   let maxWordCount = 0;
   let maxLetterCount = 0;
@@ -267,11 +281,12 @@ export default function App() {
     if (!gameState || !scored) return;
 
     const { currentRound, currentPlayerIdx, players } = gameState;
+    const startIdx = getStartPlayerIdx(currentRound, players.length);
     const newScores = gameState.scores.map((r) => [...r]);
     newScores[currentRound][currentPlayerIdx] = { wordGroups: [...wordGroups], result: scored };
 
-    const nextPlayerIdx = currentPlayerIdx + 1;
-    const roundComplete = nextPlayerIdx >= players.length;
+    const nextIdx = getNextScanPlayerIdx(currentPlayerIdx, startIdx, players.length);
+    const roundComplete = nextIdx === null;
 
     let newState: GameState;
     if (roundComplete) {
@@ -283,11 +298,11 @@ export default function App() {
         ...gameState,
         scores: newScores,
         bonuses: newBonuses,
-        currentPlayerIdx: nextPlayerIdx,
+        currentPlayerIdx: -1, // sentinel: round complete
         complete: currentRound >= TOTAL_ROUNDS - 1,
       };
     } else {
-      newState = { ...gameState, scores: newScores, currentPlayerIdx: nextPlayerIdx };
+      newState = { ...gameState, scores: newScores, currentPlayerIdx: nextIdx };
     }
 
     setGameState(newState);
@@ -299,10 +314,11 @@ export default function App() {
 
   const handleNextRound = () => {
     if (!gameState) return;
+    const nextRound = gameState.currentRound + 1;
     const newState: GameState = {
       ...gameState,
-      currentRound: gameState.currentRound + 1,
-      currentPlayerIdx: 0,
+      currentRound: nextRound,
+      currentPlayerIdx: getStartPlayerIdx(nextRound, gameState.players.length),
     };
     setGameState(newState);
     saveGameToStorage(newState);
@@ -317,7 +333,9 @@ export default function App() {
   };
 
   const isGameMode = gameState !== null;
-  const isRoundComplete = gameState ? gameState.currentPlayerIdx >= gameState.players.length : false;
+  const isRoundComplete = gameState
+    ? gameState.scores[gameState.currentRound]?.every((s) => s !== null) ?? false
+    : false;
 
   // --- Resume prompt ---
   if (showResumePrompt) {

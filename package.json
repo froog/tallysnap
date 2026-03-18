@@ -4,7 +4,7 @@
   "description": "Quiddler card game scorer with vision API",
   "type": "module",
   "scripts": {
-    "start": "node scripts/start.js",
+    "start": "node --env-file=.env scripts/start.js",
     "dev": "concurrently \"npm run proxy\" \"vite --host\"",
     "proxy": "node proxy.js",
     "build": "tsc && vite build",
