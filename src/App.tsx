@@ -368,7 +368,7 @@ export default function App() {
       <div className={styles.container}>
         <div className={styles.hero}>
           <div className={styles.tagline}>Card Game Scorer</div>
-          <h1 className={styles.title}>CardCount</h1>
+          <h1 className={styles.title}>TallySnap</h1>
           <p className={styles.subtitle}>Snap your hand. Get your score.</p>
 
           <div className={styles.card}>

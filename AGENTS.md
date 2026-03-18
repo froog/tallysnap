@@ -1,4 +1,4 @@
-# AGENTS.md - Coding Guidelines for CardCount
+# AGENTS.md - Coding Guidelines for TallySnap
 
 ## Build & Run Commands
 
@@ -33,7 +33,7 @@ VITE_TEST_BUTTON=true              # Set by --test-button flag
 - **ES Modules only** (`"type": "module"` in package.json)
 - **Functional components** with hooks (useState, useEffect, useRef, useCallback)
 - **Inline styles** - no CSS files, use the `palette` object for colors
-- **Named exports** for components: `export default function CardCount()`
+- **Named exports** for components: `export default function TallySnap()`
 
 ### Naming Conventions
 - **Components**: PascalCase (e.g., `CardChip`, `WordRow`, `ActionButton`)
@@ -60,7 +60,7 @@ function CardChip() { ... }
 function WordRow() { ... }
 
 // 5. Main App component
-export default function CardCount() { ... }
+export default function TallySnap() { ... }
 ```
 
 ### Error Handling

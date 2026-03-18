@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 /**
- * Start script for CardCount app
+ * Start script for TallySnap app
  * 
  * Usage:
  *   npm start                    # Start normally
@@ -31,7 +31,7 @@ if (!process.env.VITE_VISION_API_KEY) {
 // Set environment variables
 process.env.VITE_TEST_BUTTON = testButton ? 'true' : 'false';
 
-console.log(`Starting CardCount...`);
+console.log(`Starting TallySnap...`);
 console.log(`Test button: ${testButton ? 'ENABLED' : 'disabled'}`);
 console.log(`Proxy: ENABLED (to avoid CORS)`);
 
