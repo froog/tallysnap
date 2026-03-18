@@ -2,6 +2,22 @@ import type { GameState, PlayerRoundScore, RoundBonuses } from '../types';
 import { CARDS_PER_ROUND, TOTAL_ROUNDS, BONUS_POINTS } from '../types';
 import styles from './Scoreboard.module.css';
 
+// Playing card icon with pip in top-left
+function CardIcon() {
+  return (
+    <svg
+      width="14"
+      height="14"
+      viewBox="0 0 24 24"
+      fill="none"
+      style={{ flexShrink: 0 }}
+    >
+      <rect x="3" y="2" width="18" height="20" rx="2" stroke="currentColor" strokeWidth="2" />
+      <circle cx="8" cy="7" r="2" fill="currentColor" />
+    </svg>
+  );
+}
+
 interface ScoreboardProps {
   gameState: GameState;
 }
@@ -48,6 +64,7 @@ function getCumulativeBonus(
 export function Scoreboard({ gameState }: ScoreboardProps) {
   const { players, currentRound, scores, bonuses, complete } = gameState;
   const playerCount = players.length;
+  const currentPlayerIdx = !complete ? gameState.currentPlayerIdx : -1;
 
   return (
     <div className={styles.tableWrap}>
@@ -56,7 +73,7 @@ export function Scoreboard({ gameState }: ScoreboardProps) {
           <tr>
             <th className={styles.roundHeader}>Round</th>
             {players.map((p, i) => (
-              <th key={i} className={styles.playerHeader}>{p.name}</th>
+              <th key={i} className={`${styles.playerHeader} ${i === currentPlayerIdx ? styles.currentColumn : ''}`}>{p.name}</th>
             ))}
           </tr>
         </thead>
@@ -71,12 +88,13 @@ export function Scoreboard({ gameState }: ScoreboardProps) {
             return (
               <tr key={roundIdx} className={isCurrent ? styles.currentRow : isPast ? styles.pastRow : styles.futureRow}>
                 <td className={styles.roundCell}>
-                  {isCurrent && <span className={styles.indicator}>&gt; </span>}
-                  {cardCount} ({startName})
+                  <span className={styles.cardCount}>{cardCount}</span>
+                  <CardIcon />
+                  <span className={styles.startName}>{startName}</span>
                 </td>
                 {players.map((_, playerIdx) => {
                   const score = scores[roundIdx]?.[playerIdx];
-                  const isCurrentPlayer = isCurrent && !complete && playerIdx === gameState.currentPlayerIdx;
+                  const isCurrentColumn = playerIdx === currentPlayerIdx;
 
                   let cellContent: string;
                   if (score) {
@@ -90,7 +108,7 @@ export function Scoreboard({ gameState }: ScoreboardProps) {
                   return (
                     <td
                       key={playerIdx}
-                      className={`${styles.scoreCell} ${isCurrentPlayer ? styles.currentCell : ''}`}
+                      className={`${styles.scoreCell} ${isCurrentColumn ? styles.currentColumn : ''}`}
                     >
                       {cellContent}
                     </td>
@@ -106,7 +124,7 @@ export function Scoreboard({ gameState }: ScoreboardProps) {
             {players.map((_, playerIdx) => {
               const total = getCumulativeBonus(bonuses, playerIdx, 'longest');
               return (
-                <td key={playerIdx} className={styles.bonusCell}>
+                <td key={playerIdx} className={`${styles.bonusCell} ${playerIdx === currentPlayerIdx ? styles.currentColumn : ''}`}>
                   {total > 0 ? `+${total}` : ''}
                 </td>
               );
@@ -117,7 +135,7 @@ export function Scoreboard({ gameState }: ScoreboardProps) {
             {players.map((_, playerIdx) => {
               const total = getCumulativeBonus(bonuses, playerIdx, 'most');
               return (
-                <td key={playerIdx} className={styles.bonusCell}>
+                <td key={playerIdx} className={`${styles.bonusCell} ${playerIdx === currentPlayerIdx ? styles.currentColumn : ''}`}>
                   {total > 0 ? `+${total}` : ''}
                 </td>
               );
@@ -133,7 +151,7 @@ export function Scoreboard({ gameState }: ScoreboardProps) {
                 ? getRoundTotal(scores, bonuses, playerIdx, complete ? TOTAL_ROUNDS - 1 : currentRound)
                 : 0;
               return (
-                <td key={playerIdx} className={styles.totalCell}>{total}</td>
+                <td key={playerIdx} className={`${styles.totalCell} ${playerIdx === currentPlayerIdx ? styles.currentColumn : ''}`}>{total}</td>
               );
             })}
           </tr>

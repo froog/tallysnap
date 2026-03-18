@@ -52,7 +52,7 @@
 }
 
 .letters {
-  font-size: 11px;
+  font-size: 15px;
   color: var(--text-dim);
 }
 
@@ -63,7 +63,7 @@
 }
 
 .word {
-  font-size: 13px;
+  font-size: 16px;
   font-weight: 600;
   letter-spacing: 1px;
   text-transform: uppercase;
@@ -100,7 +100,7 @@
 }
 
 .definition {
-  font-size: 12px;
+  font-size: 14px;
   color: var(--text-dim);
   font-style: italic;
   margin-top: 4px;
