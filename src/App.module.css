@@ -116,10 +116,6 @@
   padding: 12px 0;
 }
 
-.setting:first-child {
-  border-bottom: 1px solid var(--border);
-}
-
 .settingTitle {
   font-size: 15px;
   font-weight: 600;
@@ -129,37 +125,6 @@
 .settingDesc {
   font-size: 12px;
   color: var(--text-dim);
-}
-
-.toggle {
-  width: 48px;
-  height: 28px;
-  border-radius: 14px;
-  border: none;
-  background: var(--card);
-  cursor: pointer;
-  position: relative;
-  transition: background 0.2s;
-}
-
-.toggleOn {
-  background: var(--accent);
-}
-
-.toggleKnob {
-  width: 22px;
-  height: 22px;
-  border-radius: 11px;
-  background: var(--text-dim);
-  position: absolute;
-  top: 3px;
-  left: 3px;
-  transition: left 0.2s;
-}
-
-.toggleKnobOn {
-  left: 23px;
-  background: var(--bg);
 }
 
 .badge {

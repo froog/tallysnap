@@ -7,7 +7,7 @@ import { loadTestImage } from './utils/imageLoader';
 import { ActionButton, EditWordModal, Header, WordRow } from './components';
 import styles from './App.module.css';
 
-type Screen = 'home' | 'processing' | 'review' | 'summary';
+type Screen = 'home' | 'processing' | 'score';
 
 const TEST_IMAGES = [
   { label: "AGED, EH, THAT", path: "/test-images/aged-eh-that.jpeg" },
@@ -24,9 +24,8 @@ export default function App() {
   const [wordGroups, setWordGroups] = useState<string[][]>([]);
   const [, setProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [autoScore, setAutoScore] = useState(false);
   const [editingIdx, setEditingIdx] = useState<number | null>(null);
-  const [scored, setScored] = useState<ScoreResult & { words: (WordResult & { valid?: boolean })[] } | null>(null);
+  const [scored, setScored] = useState<ScoreResult & { words: (WordResult & { valid?: boolean; unused?: boolean })[] } | null>(null);
   const [selectedTestImage, setSelectedTestImage] = useState(TEST_IMAGES[0].path);
   const fileRef = useRef<HTMLInputElement>(null);
 
@@ -48,7 +47,7 @@ export default function App() {
     [dictionary]
   );
 
-  const scoreGroups = (groups: string[][]) => {
+  const scoreGroups = useCallback((groups: string[][]) => {
     const results = plugin.scoreHand(groups);
     const validated = results.words.map((w) => {
       const isUnused = w.cards.length < 2 || !validateWord(w.cards);
@@ -70,19 +69,14 @@ export default function App() {
       : null;
 
     return { words: validated, total, wordPoints: wPoints, unusedPoints: uPoints, wordCount, longest };
-  };
+  }, [plugin, validateWord]);
 
   const processImage = async (base64: string) => {
     const words = await analyzeCards(base64, plugin);
     const uppercased = words.map((w) => w.map((c) => c.toUpperCase()));
     setWordGroups(uppercased);
-
-    if (autoScore) {
-      setScored(scoreGroups(uppercased));
-      setScreen('summary');
-    } else {
-      setScreen('review');
-    }
+    setScored(scoreGroups(uppercased));
+    setScreen('score');
   };
 
   const handlePhoto = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -94,7 +88,6 @@ export default function App() {
 
     console.log('File selected:', file.name, file.type, file.size);
 
-    // Check file size (warn if > 10MB for mobile)
     if (file.size > 10 * 1024 * 1024) {
       console.warn('Large file detected:', file.size);
     }
@@ -113,10 +106,9 @@ export default function App() {
         };
         r.onabort = () => rej(new Error("File reading aborted"));
         
-        // Add timeout for mobile
         const timeout = setTimeout(() => {
           rej(new Error("File reading timeout - file may be too large"));
-        }, 30000); // 30 second timeout
+        }, 30000);
         
         r.onloadend = () => clearTimeout(timeout);
         
@@ -137,7 +129,6 @@ export default function App() {
       setScreen('home');
     } finally {
       setProcessing(false);
-      // Reset file input so same file can be selected again
       if (fileRef.current) {
         fileRef.current.value = '';
       }
@@ -162,14 +153,29 @@ export default function App() {
 
   const showTestButton = import.meta.env.VITE_TEST_BUTTON === "true";
 
-  const doScore = () => {
-    setScored(scoreGroups(wordGroups));
-    setScreen('summary');
+  const handleEditSave = (newCards: string[]) => {
+    if (editingIdx === null) return;
+    const updated = [...wordGroups];
+    updated[editingIdx] = newCards;
+    setWordGroups(updated);
+    setScored(scoreGroups(updated));
+    setEditingIdx(null);
   };
 
-  const addNewWord = () => {
-    setWordGroups([...wordGroups, []]);
-    setEditingIdx(wordGroups.length);
+  const handleEditDelete = () => {
+    if (editingIdx === null) return;
+    const updated = wordGroups.filter((_, i) => i !== editingIdx);
+    setWordGroups(updated);
+    setScored(scoreGroups(updated));
+    setEditingIdx(null);
+  };
+
+  // Find the original wordGroups index for a scored word
+  const findWordGroupIndex = (scoredWord: WordResult) => {
+    return wordGroups.findIndex((g) => 
+      g.length === scoredWord.cards.length && 
+      g.every((c, i) => c === scoredWord.cards[i])
+    );
   };
 
   // Home screen
@@ -228,19 +234,6 @@ export default function App() {
           <div className={styles.settings}>
             <div className={styles.setting}>
               <div>
-                <div className={styles.settingTitle}>Auto-score</div>
-                <div className={styles.settingDesc}>Skip review step</div>
-              </div>
-              <button
-                onClick={() => setAutoScore(!autoScore)}
-                className={`${styles.toggle} ${autoScore ? styles.toggleOn : ''}`}
-              >
-                <div className={`${styles.toggleKnob} ${autoScore ? styles.toggleKnobOn : ''}`} />
-              </button>
-            </div>
-
-            <div className={styles.setting}>
-              <div>
                 <div className={styles.settingTitle}>Dictionary</div>
                 <div className={styles.settingDesc}>SOWPODS (international)</div>
               </div>
@@ -267,64 +260,14 @@ export default function App() {
     );
   }
 
-  // Review screen
-  if (screen === 'review') {
-    return (
-      <div className={styles.container}>
-        <Header title="Review Hand" subtitle="Check detected cards before scoring" onBack={() => setScreen('home')} />
-
-        <div className={styles.wordList}>
-          {wordGroups.map((cards, idx) => (
-            <WordRow
-              key={idx}
-              cards={cards}
-              plugin={plugin}
-              isValid={validateWord(cards)}
-              onEditWord={() => setEditingIdx(idx)}
-            />
-          ))}
-        </div>
-
-        <div className={styles.actions}>
-          <ActionButton variant="secondary" onClick={addNewWord}>+ Add Word</ActionButton>
-        </div>
-
-        <ActionButton
-          onClick={doScore}
-          disabled={wordGroups.filter((g) => g.length >= 2).length === 0}
-        >
-          Score This Hand
-        </ActionButton>
-
-        {editingIdx !== null && wordGroups[editingIdx] && (
-          <EditWordModal
-            cards={wordGroups[editingIdx]}
-            plugin={plugin}
-            onSave={(newCards) => {
-              const updated = [...wordGroups];
-              updated[editingIdx] = newCards;
-              setWordGroups(updated);
-              setEditingIdx(null);
-            }}
-            onCancel={() => setEditingIdx(null)}
-            onDelete={() => {
-              setWordGroups(wordGroups.filter((_, i) => i !== editingIdx));
-              setEditingIdx(null);
-            }}
-          />
-        )}
-      </div>
-    );
-  }
-
-  // Summary screen
-  if (screen === 'summary' && scored) {
+  // Score screen
+  if (screen === 'score' && scored) {
     const validWords = scored.words.filter((w) => !w.unused);
     const unusedWords = scored.words.filter((w) => w.unused);
 
     return (
       <div className={styles.container}>
-        <Header title="Score" subtitle={plugin.name} onBack={() => setScreen('review')} />
+        <Header title="Score" subtitle={plugin.name} onBack={() => setScreen('home')} />
 
         <div className={styles.scoreDisplay}>
           <div className={styles.bigScore}>{scored.total}</div>
@@ -360,7 +303,13 @@ export default function App() {
             <div className={styles.sectionTitle}>Words</div>
             <div className={styles.wordList}>
               {validWords.map((w, i) => (
-                <WordRow key={i} cards={w.cards} plugin={plugin} isValid={w.valid} />
+                <WordRow 
+                  key={i} 
+                  cards={w.cards} 
+                  plugin={plugin} 
+                  isValid={w.valid}
+                  onEditWord={() => setEditingIdx(findWordGroupIndex(w))}
+                />
               ))}
             </div>
           </>
@@ -371,25 +320,36 @@ export default function App() {
             <div className={styles.sectionTitle}>Unused Cards</div>
             <div className={styles.wordList}>
               {unusedWords.map((w, i) => (
-                <WordRow key={`unused-${i}`} cards={w.cards} plugin={plugin} unused />
+                <WordRow 
+                  key={`unused-${i}`} 
+                  cards={w.cards} 
+                  plugin={plugin} 
+                  unused
+                  onEditWord={() => setEditingIdx(findWordGroupIndex(w))}
+                />
               ))}
             </div>
           </>
         )}
 
-        <div className={styles.actions}>
-          <ActionButton variant="secondary" onClick={() => setScreen('review')}>
-            Edit
-          </ActionButton>
-          <ActionButton onClick={() => {
-            setWordGroups([]);
-            setScored(null);
-            setError(null);
-            setScreen('home');
-          }}>
-            New Hand
-          </ActionButton>
-        </div>
+        <ActionButton onClick={() => {
+          setWordGroups([]);
+          setScored(null);
+          setError(null);
+          setScreen('home');
+        }}>
+          New Hand
+        </ActionButton>
+
+        {editingIdx !== null && wordGroups[editingIdx] && (
+          <EditWordModal
+            cards={wordGroups[editingIdx]}
+            plugin={plugin}
+            onSave={handleEditSave}
+            onCancel={() => setEditingIdx(null)}
+            onDelete={handleEditDelete}
+          />
+        )}
       </div>
     );
   }
