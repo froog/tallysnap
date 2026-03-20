@@ -8,16 +8,51 @@ const app = express();
 app.use(cors());
 app.use(express.json({ limit: '50mb' }));
 
+const LOCAL_OCR_URL = 'http://localhost:3002';
+
+// Check if the local OCR server is running (fast timeout)
+async function tryLocalOcr(reqBody) {
+  try {
+    const healthRes = await fetch(`${LOCAL_OCR_URL}/health`, {
+      signal: AbortSignal.timeout(200),
+    });
+    if (!healthRes.ok) return null;
+
+    const health = await healthRes.json();
+    if (!health.model_loaded) return null;
+
+    const ocrRes = await fetch(`${LOCAL_OCR_URL}/v1/messages`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(reqBody),
+      signal: AbortSignal.timeout(10000),
+    });
+    if (!ocrRes.ok) return null;
+    return await ocrRes.json();
+  } catch {
+    return null;
+  }
+}
+
 // Anthropic API proxy endpoint
 app.post('/api/anthropic/v1/messages', async (req, res) => {
   const apiKey = process.env.VITE_VISION_API_KEY;
-  
+
+  // Try local OCR model first (fast, no API key required)
+  const localResult = await tryLocalOcr(req.body);
+  if (localResult) {
+    console.log('✓ Using local OCR model (fast path)');
+    return res.json(localResult);
+  }
+
   if (!apiKey) {
-    console.error('ERROR: VITE_VISION_API_KEY not set');
-    return res.status(500).json({ 
-      error: 'Server configuration error: API key not configured' 
+    console.error('ERROR: VITE_VISION_API_KEY not set and local OCR server not available');
+    return res.status(500).json({
+      error: 'Server configuration error: API key not configured and local OCR server not running'
     });
   }
+
+  console.log('→ Local OCR not available, falling back to Anthropic API');
 
   try {
     // Log the request details
@@ -78,10 +113,20 @@ app.post('/api/anthropic/v1/messages', async (req, res) => {
 });
 
 // Health check
-app.get('/health', (req, res) => {
-  res.json({ 
+app.get('/health', async (req, res) => {
+  let localOcrStatus = 'not running';
+  try {
+    const r = await fetch(`${LOCAL_OCR_URL}/health`, { signal: AbortSignal.timeout(200) });
+    if (r.ok) {
+      const h = await r.json();
+      localOcrStatus = h.model_loaded ? 'ready' : 'running (no model)';
+    }
+  } catch { /* not running */ }
+
+  res.json({
     status: 'ok',
-    apiConfigured: !!process.env.VITE_VISION_API_KEY
+    apiConfigured: !!process.env.VITE_VISION_API_KEY,
+    localOcr: localOcrStatus,
   });
 });
 
