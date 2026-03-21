@@ -13,6 +13,7 @@ Usage:
 
 import argparse
 import base64
+import io
 import json
 import os
 import random
@@ -77,7 +78,6 @@ def image_to_base64(image_path: Path) -> tuple[str, str]:
     else:
         # Convert to JPEG for other formats
         img = Image.open(image_path).convert("RGB")
-        import io
         buf = io.BytesIO()
         img.save(buf, format="JPEG", quality=85)
         return base64.b64encode(buf.getvalue()).decode(), "image/jpeg"
@@ -182,7 +182,7 @@ def main():
     client = anthropic.Anthropic(api_key=api_key)
 
     # Find images
-    images = collect_images(args.image_source if hasattr(args, "image_source") else args.images)
+    images = collect_images(args.images)
     if not images:
         print(f"ERROR: No images found at {args.images}")
         sys.exit(1)

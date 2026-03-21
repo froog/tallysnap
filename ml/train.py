@@ -158,7 +158,8 @@ def main():
     best_model = models_dir / args.name / "weights" / "best.pt"
     print(f"\n=== Training Complete ===")
     print(f"  Best model: {best_model}")
-    print(f"  mAP50: {results.results_dict.get('metrics/mAP50(B)', 'N/A'):.3f}")
+    mAP50 = results.results_dict.get('metrics/mAP50(B)')
+    print(f"  mAP50: {float(mAP50):.3f}" if mAP50 is not None else "  mAP50: N/A")
     print()
     print("Next steps:")
     print("  1. Export model:         python export.py")

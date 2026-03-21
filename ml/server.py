@@ -24,6 +24,7 @@ import json
 import os
 import sys
 import time
+from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import Any
 
@@ -39,7 +40,24 @@ CLASS_NAMES = [
     "TH", "QU", "IN", "ER", "CL"
 ]
 
-app = FastAPI(title="Quiddler OCR Server", version="1.0.0")
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Pre-load the model at startup so the first request isn't slow."""
+    print("Quiddler OCR Server starting up...")
+    try:
+        get_model()
+        print("Ready on http://0.0.0.0:3002")
+        print("  POST /v1/messages  — card recognition (Anthropic-compatible)")
+        print("  GET  /health       — health check")
+        print("  POST /test         — test with local file path")
+    except RuntimeError as e:
+        print(f"\nWARNING: Model not loaded: {e}")
+        print("Server is running but will return 503 until model is trained.")
+        print("Run: python train.py && python export.py")
+    yield
+
+
+app = FastAPI(title="Quiddler OCR Server", version="1.0.0", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
@@ -313,26 +331,6 @@ async def test_image(request: dict[str, Any]) -> dict:
         }]
     }
     return await analyze_cards(anthropic_request)
-
-
-# ---------------------------------------------------------------------------
-# Startup
-# ---------------------------------------------------------------------------
-
-@app.on_event("startup")
-async def startup_event():
-    """Pre-load the model at startup so first request isn't slow."""
-    print("Quiddler OCR Server starting up...")
-    try:
-        get_model()
-        print(f"Ready on http://0.0.0.0:3002")
-        print(f"  POST /v1/messages  — card recognition (Anthropic-compatible)")
-        print(f"  GET  /health       — health check")
-        print(f"  POST /test         — test with local file path")
-    except RuntimeError as e:
-        print(f"\nWARNING: Model not loaded: {e}")
-        print("Server is running but will return 503 until model is trained.")
-        print("Run: python train.py && python export.py")
 
 
 if __name__ == "__main__":

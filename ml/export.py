@@ -15,6 +15,7 @@ Usage:
 """
 
 import argparse
+import shutil
 import sys
 from pathlib import Path
 
@@ -38,7 +39,6 @@ def export_onnx(model, output_dir: Path, imgsz: int) -> Path:
     onnx_path = Path(path)
     # Copy to models/ for easy access
     dest = output_dir / "quiddler.onnx"
-    import shutil
     shutil.copy2(onnx_path, dest)
     print(f"ONNX model saved: {dest} ({dest.stat().st_size / 1024 / 1024:.1f} MB)")
     return dest
@@ -55,7 +55,6 @@ def export_coreml(model, output_dir: Path, imgsz: int) -> Path | None:
         )
         coreml_path = Path(path)
         dest = output_dir / "quiddler.mlpackage"
-        import shutil
         if coreml_path.is_dir():
             if dest.exists():
                 shutil.rmtree(dest)
@@ -112,8 +111,8 @@ def main():
                         help="Export format (default: all)")
     parser.add_argument("--imgsz", type=int, default=640,
                         help="Image size used during training (default: 640)")
-    parser.add_argument("--benchmark", action="store_true", default=True,
-                        help="Run inference benchmark after export")
+    parser.add_argument("--no-benchmark", action="store_true", default=False,
+                        help="Skip inference benchmark after export")
     args = parser.parse_args()
 
     try:
@@ -159,7 +158,7 @@ def main():
         if coreml_path:
             exported.append(coreml_path)
 
-    if args.benchmark:
+    if not args.no_benchmark:
         benchmark(weights_path, args.imgsz)
 
     print(f"\n=== Export Complete ===")

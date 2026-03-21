@@ -10,23 +10,28 @@ app.use(express.json({ limit: '50mb' }));
 
 const LOCAL_OCR_URL = 'http://localhost:3002';
 
+/** Fetch with an explicit timeout using AbortController (compatible with Node 14+). */
+function fetchWithTimeout(url, options, timeoutMs) {
+  const controller = new AbortController();
+  const tid = setTimeout(() => controller.abort(), timeoutMs);
+  return fetch(url, { ...options, signal: controller.signal })
+    .finally(() => clearTimeout(tid));
+}
+
 // Check if the local OCR server is running (fast timeout)
 async function tryLocalOcr(reqBody) {
   try {
-    const healthRes = await fetch(`${LOCAL_OCR_URL}/health`, {
-      signal: AbortSignal.timeout(200),
-    });
+    const healthRes = await fetchWithTimeout(`${LOCAL_OCR_URL}/health`, {}, 200);
     if (!healthRes.ok) return null;
 
     const health = await healthRes.json();
     if (!health.model_loaded) return null;
 
-    const ocrRes = await fetch(`${LOCAL_OCR_URL}/v1/messages`, {
+    const ocrRes = await fetchWithTimeout(`${LOCAL_OCR_URL}/v1/messages`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(reqBody),
-      signal: AbortSignal.timeout(10000),
-    });
+    }, 10000);
     if (!ocrRes.ok) return null;
     return await ocrRes.json();
   } catch {
@@ -116,7 +121,7 @@ app.post('/api/anthropic/v1/messages', async (req, res) => {
 app.get('/health', async (req, res) => {
   let localOcrStatus = 'not running';
   try {
-    const r = await fetch(`${LOCAL_OCR_URL}/health`, { signal: AbortSignal.timeout(200) });
+    const r = await fetchWithTimeout(`${LOCAL_OCR_URL}/health`, {}, 200);
     if (r.ok) {
       const h = await r.json();
       localOcrStatus = h.model_loaded ? 'ready' : 'running (no model)';

@@ -24,7 +24,7 @@ pip install -r requirements.txt
 
 echo ""
 echo "=== Verifying M4 MPS support ==="
-python3 -c "
+python -c "
 import torch
 mps = torch.backends.mps.is_available()
 print(f'MPS (Apple Silicon GPU) available: {mps}')
