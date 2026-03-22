@@ -66,23 +66,48 @@ Then output ALL detected cards in <labels> tags as a JSON array:
 
 Be precise. Missing cards or wrong letters will degrade model quality."""
 
+# Anthropic's 5MB image limit (bytes of the base64 string itself)
+_MAX_B64_BYTES = 4_900_000
+
+
+def _compress_to_limit(img: Image.Image) -> str:
+    """Re-save image as JPEG at decreasing quality until under the size limit."""
+    for quality in (85, 75, 65, 55, 45):
+        buf = io.BytesIO()
+        img.save(buf, format="JPEG", quality=quality)
+        b64 = base64.b64encode(buf.getvalue()).decode()
+        if len(b64) <= _MAX_B64_BYTES:
+            return b64
+    # Last resort: halve dimensions and retry
+    w, h = img.size
+    img = img.resize((w // 2, h // 2), Image.LANCZOS)
+    buf = io.BytesIO()
+    img.save(buf, format="JPEG", quality=65)
+    return base64.b64encode(buf.getvalue()).decode()
+
 
 def image_to_base64(image_path: Path) -> tuple[str, str]:
-    """Convert image to base64 string. Returns (base64_data, media_type)."""
+    """Convert image to base64 string, compressing if needed. Returns (base64_data, media_type)."""
     suffix = image_path.suffix.lower()
-    if suffix in (".jpg", ".jpeg"):
-        media_type = "image/jpeg"
-    elif suffix == ".png":
-        media_type = "image/png"
-    else:
-        # Convert to JPEG for other formats
-        img = Image.open(image_path).convert("RGB")
-        buf = io.BytesIO()
-        img.save(buf, format="JPEG", quality=85)
-        return base64.b64encode(buf.getvalue()).decode(), "image/jpeg"
 
+    if suffix not in (".jpg", ".jpeg", ".png"):
+        # Convert non-native formats (HEIC, WEBP, etc.) to JPEG
+        img = Image.open(image_path).convert("RGB")
+        b64 = _compress_to_limit(img)
+        return b64, "image/jpeg"
+
+    # Read raw bytes and check size before making any API call
     with open(image_path, "rb") as f:
-        return base64.b64encode(f.read()).decode(), media_type
+        raw = f.read()
+    b64 = base64.b64encode(raw).decode()
+
+    if len(b64) <= _MAX_B64_BYTES:
+        media_type = "image/jpeg" if suffix in (".jpg", ".jpeg") else "image/png"
+        return b64, media_type
+
+    # File too large after encoding — re-compress as JPEG
+    img = Image.open(image_path).convert("RGB")
+    return _compress_to_limit(img), "image/jpeg"
 
 
 def label_image(client, image_path: Path) -> list[dict]:
