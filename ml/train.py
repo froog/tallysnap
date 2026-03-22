@@ -136,7 +136,6 @@ def main():
         hsv_h=0.02,       # Slight hue shifts (lighting variation)
         hsv_s=0.5,        # Saturation variation
         hsv_v=0.4,        # Brightness variation (shadows, glare)
-        blur=0.1,         # Motion blur / focus variation
         fliplr=0.0,       # Don't flip horizontally (letters would be mirrored)
         flipud=0.0,       # Don't flip vertically
         mosaic=0.5,       # Mosaic augmentation for multi-card scenes
