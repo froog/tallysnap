@@ -22,7 +22,6 @@ import shutil
 import sys
 from pathlib import Path
 
-import anthropic
 from PIL import Image
 
 # All valid Quiddler card labels, ordered by class index (must match dataset.yaml)
@@ -86,7 +85,7 @@ def image_to_base64(image_path: Path) -> tuple[str, str]:
         return base64.b64encode(f.read()).decode(), media_type
 
 
-def label_image(client: anthropic.Anthropic, image_path: Path) -> list[dict]:
+def label_image(client, image_path: Path) -> list[dict]:
     """Call Claude API to get bounding box labels for a card image."""
     print(f"  Labeling: {image_path.name} ... ", end="", flush=True)
 
@@ -174,12 +173,19 @@ def main():
                         help="Show what would be done without calling the API")
     args = parser.parse_args()
 
-    # Setup API client
-    api_key = args.api_key or os.environ.get("ANTHROPIC_API_KEY") or os.environ.get("VITE_VISION_API_KEY")
-    if not api_key:
-        print("ERROR: No API key found. Set ANTHROPIC_API_KEY or pass --api-key")
-        sys.exit(1)
-    client = anthropic.Anthropic(api_key=api_key)
+    # Setup API client (skip in dry-run)
+    client = None
+    if not args.dry_run:
+        try:
+            import anthropic as _anthropic
+        except ImportError:
+            print("ERROR: anthropic package not installed. Run: pip install anthropic")
+            sys.exit(1)
+        api_key = args.api_key or os.environ.get("ANTHROPIC_API_KEY") or os.environ.get("VITE_VISION_API_KEY")
+        if not api_key:
+            print("ERROR: No API key found. Set ANTHROPIC_API_KEY or pass --api-key")
+            sys.exit(1)
+        client = _anthropic.Anthropic(api_key=api_key)
 
     # Find images
     images = collect_images(args.images)
